@@ -19,12 +19,14 @@ struct SiteFooter: Component {
                             ListItem { Link("About.", url: "about.html") }
                             ListItem { Link("Contact.", url: "contact.html") }
                         }.class("footer-nav")
-                        Paragraph {
-                            Text("Generated using ")
-                            Link("Publish", url: "https://github.com/johnsundell/publish")
-                            Text("\n | \n")
-                            Link("Original Site Template Copyright &copy; 2014 Sparrow", url: "http://www.styleshout.com/")
-                        }
+                        Div {
+                            Paragraph {
+                                Text("Generated using ")
+                                Link("Publish", url: "https://github.com/johnsundell/publish")
+                                Text("\n | \n")
+                                Link("Original Site Template Copyright &copy; 2014 Sparrow", url: "http://www.styleshout.com/")
+                            }
+                        }.class("align-center")
                     }.class("twelve columns")
                     Div {
                         Link("Go To Top", url: "#")

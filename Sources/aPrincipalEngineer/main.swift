@@ -10,7 +10,7 @@ struct APrincipalEngineer: Website {
     }
 
     struct ItemMetadata: WebsiteItemMetadata {
-        // Add any site-specific metadata that you want to use here.
+        let author: String
     }
 
     struct Content {
