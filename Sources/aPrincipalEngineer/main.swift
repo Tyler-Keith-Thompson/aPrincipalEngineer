@@ -3,14 +3,16 @@ import Publish
 import Plot
 
 // This type acts as the configuration for your website.
+@available(macOS 12.0, *)
 struct APrincipalEngineer: Website {
     enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:
-        case posts
+        case blog
+        case about
     }
 
     struct ItemMetadata: WebsiteItemMetadata {
-        let author: String
+        let author: Author
     }
 
     struct Content {
@@ -29,7 +31,7 @@ struct APrincipalEngineer: Website {
     }
 
     // Update these properties to configure your website:
-    var url = URL(string: "https://aPrincipalEngineer.com")!
+    var url = ProcessInfo.processInfo.environment["RUN_FROM_FILE"] == "true" ? URL(fileURLWithPath: "\(#file)/../../../Output") : URL(string: "https://www.aprincipalengineer.com/")!
     var name = "A Principal Engineer"
     var description = "A blog about software engineering. From career advice, to side projects, to Swift language topics."
     var language: Language { .english }
@@ -38,11 +40,15 @@ struct APrincipalEngineer: Website {
 }
 
 // This will generate your website using the built-in Foundation theme:
-try APrincipalEngineer().publish(using: [
-    .group([].map(PublishingStep.installPlugin)),
-    .optional(.copyResources()),
-    .addMarkdownFiles(),
-    .sortItems(by: \.date, order: .descending),
-    .generateHTML(withTheme: .sparrow),
-    .generateSiteMap()
-])
+if #available(macOS 12.0, *) {
+    try APrincipalEngineer().publish(using: [
+        .group([].map(PublishingStep.installPlugin)),
+        .optional(.copyResources()),
+        .addMarkdownFiles(),
+        .sortItems(by: \.date, order: .descending),
+        .generateHTML(withTheme: .sparrow),
+        .generateSiteMap()
+    ])
+} else {
+    fatalError("macOS 12 is required to")
+}

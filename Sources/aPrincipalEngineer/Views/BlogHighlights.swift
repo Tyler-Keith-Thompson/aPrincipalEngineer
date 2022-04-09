@@ -9,7 +9,9 @@ import Publish
 import Plot
 import Foundation
 
+@available(macOS 12.0, *)
 final class BlogHighlights: Component {
+    let context: PublishingContext<APrincipalEngineer>
     let items: [Item<APrincipalEngineer>]
 
     lazy var visibleDateFormatter: DateFormatter = {
@@ -24,7 +26,8 @@ final class BlogHighlights: Component {
         return formatter
     }()
 
-    init(items: [Item<APrincipalEngineer>]) {
+    init(context: PublishingContext<APrincipalEngineer>, items: [Item<APrincipalEngineer>]) {
+        self.context = context
         self.items = items
     }
 
@@ -40,10 +43,10 @@ final class BlogHighlights: Component {
                     Article {
                         Div {
                             Div {
-                                Link(url: "\(item.path)/index.html") { Element(name: "i") { }.class("fa fa-link") }
+                                Link(url: self.context.site.url.appendingPathComponent(item.path.absoluteString).appendingPathComponent("index.html").absoluteString) { Element(name: "i") { }.class("fa fa-link") }
                             }.class("permalink")
                             Div {
-                                H3 { Link(item.title, url: "\(item.path)/index.html") }
+                                H3 { Link(item.title, url: self.context.site.url.appendingPathComponent(item.path.absoluteString).appendingPathComponent("index.html").absoluteString) }
                             }.class("ten columns entry-title pull-right")
                             Div {
                                 Paragraph {
@@ -51,7 +54,7 @@ final class BlogHighlights: Component {
                                         Text(self.visibleDateFormatter.string(from: item.date))
                                     }.attribute(named: "datetime", value: self.timeElementDateFormatter.string(from: item.date))
                                         .class("post-date")
-                                    Span("By \(item.metadata.author)")
+                                    Span("By \(item.metadata.author.name.formatted())")
                                         .class("dauthor")
                                 }
                             }.class("two columns post-meta end")
@@ -59,7 +62,7 @@ final class BlogHighlights: Component {
                         Div {
                             Paragraph {
                                 Text(item.description)
-                                Link(url: "\(item.path)/index.html") { Element(name: "i") { }.class("fa fa-arrow-circle-o-right") }.class("more-link")
+                                Link(url: self.context.site.url.appendingPathComponent(item.path.absoluteString).appendingPathComponent("index.html").absoluteString) { Element(name: "i") { }.class("fa fa-arrow-circle-o-right") }.class("more-link")
                             }
                         }.class("ten columns offset-2 post-content")
                     }.class("row entry")

@@ -489,11 +489,16 @@
    .post .entry-header h1 a,
    .post .entry-header h1 a:visited { color: #eee; }
    .post .post-meta .date { color: #eee; }
+   .post .bio { background-color: #323232 }
    .post-nav li a:hover { color: #eee; }
    .portfolio .portfolio-meta-list li span { color: #eee; }
    .stats-tabs li a { color: #eee; }
 
    #sidebar .link-list li a:hover { color: #eee; }
+   #sidebar .tagcloud a {
+       color: #D3D9D9;
+       background-color: #6D7E7E;
+   }
    #journal a:hover, #journal a:focus { color: #eee; }
    
  }

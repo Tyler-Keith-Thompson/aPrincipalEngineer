@@ -6,12 +6,12 @@
 //
 
 import Plot
+import Publish
 
+@available(macOS 12.0, *)
 struct SiteNavigation: Component {
-    let page: SitePage
-    init(for page: SitePage) {
-        self.page = page
-    }
+    let context: PublishingContext<APrincipalEngineer>
+    let page: SitePageProtocol
 
     var body: Component {
         Header {
@@ -32,22 +32,13 @@ struct SiteNavigation: Component {
 
                         List {
                             ListItem {
-                                Link("Home", url: "index.html")
+                                Link("Home", url: context.site.url.appendingPathComponent("index.html").absoluteString)
                             }.class(page.path == "index.html" ? "current" : "")
                             ListItem {
-                                Span {
-                                    Link("Blog", url: "blog.html")
-                                }
-                                List {
-                                    ListItem {
-                                        Link("Blog Index", url: "blog.html")
-                                        Link("Post", url: "single.html")
-                                    }
-                                }.id("nav")
-                                    .class("nav")
+                                Link("Blog", url: context.site.url.appendingPathComponent("blog").appendingPathComponent("index.html").absoluteString)
                             }.class(page.path == "blog.html" ? "current" : "")
-                            ListItem { Link("About", url: "about.html") }.class(page.path == "about.html" ? "current" : "")
-                            ListItem { Link("Contact", url: "contact.html") }.class(page.path == "contact.html" ? "current" : "")
+                            ListItem { Link("About", url: context.site.url.appendingPathComponent("about").appendingPathComponent("index.html").absoluteString) }.class(page.path == "about.html" ? "current" : "")
+                            ListItem { Link("Contact", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }.class(page.path == "contact.html" ? "current" : "")
                         }.id("nav")
                             .class("nav")
                     }.id("nav-wrap")

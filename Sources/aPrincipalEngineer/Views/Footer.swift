@@ -6,18 +6,22 @@
 //
 
 import Plot
+import Publish
 
+@available(macOS 12.0, *)
 struct SiteFooter: Component {
+    let context: PublishingContext<APrincipalEngineer>
+
     var body: Component {
         ComponentGroup {
             Footer {
                 Div {
                     Div {
                         List {
-                            ListItem { Link("Home.", url: "index.html") }
-                            ListItem { Link("Blog.", url: "blog.html") }
-                            ListItem { Link("About.", url: "about.html") }
-                            ListItem { Link("Contact.", url: "contact.html") }
+                            ListItem { Link("Home.", url: context.site.url.appendingPathComponent("index.html").absoluteString) }
+                            ListItem { Link("Blog.", url: context.site.url.appendingPathComponent("blog").appendingPathComponent("index.html").absoluteString) }
+                            ListItem { Link("About.", url: context.site.url.appendingPathComponent("about").appendingPathComponent("index.html").absoluteString) }
+                            ListItem { Link("Contact.", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }
                         }.class("footer-nav")
                         Div {
                             Paragraph {
@@ -38,7 +42,7 @@ struct SiteFooter: Component {
             ComponentGroup(html: #"""
             <!-- Java Script
             ================================================== -->
-            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
             <script>window.jQuery || document.write('<script src="js/jquery-1.10.2.min.js"><\/script>')</script>
             <script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>
 
