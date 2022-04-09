@@ -5,6 +5,7 @@
 //  Created by Tyler Thompson on 4/9/22.
 //
 
+import Foundation
 import Plot
 import Publish
 
@@ -13,226 +14,109 @@ struct Blog: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let section: Section<APrincipalEngineer>
 
+    static var pageTitle: Component {
+        PageTitle(title: "Our Blog.", subtitle: "Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu.")
+    }
+
+    static var visibleDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd, yyyy"
+        return formatter
+    }()
+
+    static var timeElementDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-dd-MM"
+        return formatter
+    }()
+
     var html: HTML {
         SitePage(sitePage: section,
                  context: context) {
-            ComponentGroup(html: #"""
-               <!-- Page Title
-               ================================================== -->
-               <div id="page-title">
+            Self.pageTitle
+            let PAGE_SIZE = Int.max
+            let items = context.allItems(sortedBy: \.date, order: .descending)
+            Div {
+                Div {
+                    Div {
+                        let components: [Component] = items.prefix(PAGE_SIZE).map { post in
+                            Article {
+                                Div {
+                                    H1(post.title)
+                                    Paragraph {
+                                        Element(name: "time") {
+                                            Text(Self.visibleDateFormatter.string(from: post.date))
+                                        }.attribute(named: "datetime", value: Self.timeElementDateFormatter.string(from: post.date))
+                                            .class("date")
+                                        if !post.tags.isEmpty {
+                                            Text(" / ")
+                                            Span {
+                                                let breadcrumbs: [Component] = post.tags.flatMap { [Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString), Text(" / ")] as [Component] }.dropLast()
+                                                ComponentGroup(members: breadcrumbs)
+                                            }.class("categories")
+                                        }
+                                    }.class("post-meta")
+                                }.class("entry-header cf")
+                                if let imagePath = post.imagePath {
+                                    Div {
+                                        Image(url: context.site.url.appendingPathComponent("images").appendingPathComponent(imagePath.absoluteString), description: "post-image")
+                                    }.class("post-thumb")
+                                }
+                                Div {
+                                    Paragraph(post.description)
+                                }.class("post-content")
+                            }.class("post")
+                        }
+                        ComponentGroup(members: components)
+                        Navigation {
+                            let pages = items.count / PAGE_SIZE
+                            let paginationLinks: [Component] = (0..<pages).map { pageNumber in
+                                // add current if we are on the current page
+                                ListItem {
+                                    Span("\(pageNumber+1)").class("page-numbers")
+                                }
+                            }
+                            if paginationLinks.count > 1 {
+                                List {
+                                    ListItem { Span("Prev").class("page-numbers prev inactive") }
+                                    ComponentGroup(members: paginationLinks)
+                                    ListItem { Span("Next").class("page-numbers next") }
+                                }
+                            }
+                        }.class("col full pagination")
+                    }.id("primary")
+                        .class("eight columns")
+                    // Aside goes here
+                    Div {
+                        Element(name: "aside") {
+                            Div {
+                                H5("Text Widget").class("widget-title")
+                                Div {
+                                    Text("Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus a sit amet mauris. Morbi accumsan ipsum velit")
+                                }.class("textwidget")
+                            }.class("widget widget_text")
 
-                  <div class="row">
+                            Div {
+                                H5("Categories").class("widget-title")
+                                List {
+                                    let tagLinks: [Component] = context.allTags.map { tag in ListItem { Link(tag.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent(tag.string).appendingPathComponent("index.html").absoluteString) } as Component }
+                                    ComponentGroup(members: tagLinks)
+                                }.class("link-list cf")
+                            }.class("widget widget_categories")
 
-                     <div class="ten columns centered text-center">
-                        <h1>Our Blog<span>.</span></h1>
-
-                        <p>Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi
-                        enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu. </p>
-                     </div>
-
-                  </div>
-
-               </div> <!-- Page Title End-->
-
-               <!-- Content
-               ================================================== -->
-               <div class="content-outer">
-
-                  <div id="page-content" class="row">
-
-                     <div id="primary" class="eight columns">
-
-                        <article class="post">
-
-                           <div class="entry-header cf">
-
-                              <h1><a href="single.html" title="">Proin gravida nibh vel velit auctor aliquet Aenean sollicitudin auctor.</a></h1>
-
-                              <p class="post-meta">
-
-                                 <time class="date" datetime="2014-01-14T11:24">Jan 14, 2014</time>
-                                 /
-                                 <span class="categories">
-                                 <a href="#">Design</a> /
-                                 <a href="#">User Inferface</a> /
-                                 <a href="#">Web Design</a>
-                                 </span>
-
-                              </p>
-
-                           </div>
-
-                           <div class="post-thumb">
-                              <a href="single.html" title=""><img src="images/post-image/post-image-1300x500-01.jpg" alt="post-image" title="post-image"></a>
-                           </div>
-
-                           <div class="post-content">
-
-                              <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor,
-                              nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate
-                              cursus a sit amet mauris. Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a
-                              ornare odio. Sed non  mauris vitae erat consequat auctor eu in elit. </p>
-
-                           </div>
-
-                        </article> <!-- post end -->
-
-                        <article class="post">
-
-                           <div class="entry-header cf">
-
-                              <h1><a href="single.html" title="">Proin gravida nibh vel velit auctor aliquet Aenean sollicitudin auctor.</a></h1>
-
-                              <p class="post-meta">
-
-                                 <time class="date" datetime="2014-01-14T11:24">Jan 14, 2013</time>
-                                 /
-                                 <span class="categories">
-                                 <a href="#">Design</a> /
-                                 <a href="#">User Inferface</a> /
-                                 <a href="#">Web Design</a>
-                                 </span>
-
-                              </p>
-
-                           </div>
-
-                           <div class="post-thumb">
-                              <a href="single.html" title=""><img src="images/post-image/post-image-1300x500-02.jpg" alt="post-image" title="post-image"></a>
-                           </div>
-
-                           <div class="post-content">
-
-                              <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor,
-                              nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate
-                              cursus a sit amet mauris. Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a
-                              ornare odio. Sed non  mauris vitae erat consequat auctor eu in elit. </p>
-
-                           </div>
-
-                        </article> <!-- post end -->
-
-                        <article class="post">
-
-                           <div class="entry-header cf">
-
-                              <h1><a href="single.html" title="">Proin gravida nibh vel velit auctor aliquet Aenean sollicitudin auctor.</a></h1>
-
-                              <p class="post-meta">
-
-                                 <time class="date" datetime="2014-01-14T11:24">Jan 14, 2014</time>
-                                 /
-                                 <span class="categories">
-                                 <a href="#">Design</a> /
-                                 <a href="#">User Inferface</a> /
-                                 <a href="#">Web Design</a>
-                                 </span>
-
-                              </p>
-
-                           </div>
-
-                           <div class="post-thumb">
-                              <a href="single.html" title=""><img src="images/post-image/post-image-1300x500-03.jpg" alt="post-image" title="post-image"></a>
-                           </div>
-
-                           <div class="post-content">
-
-                              <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor,
-                              nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate
-                              cursus a sit amet mauris. Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a
-                              ornare odio. Sed non  mauris vitae erat consequat auctor eu in elit. </p>
-
-                           </div>
-
-                        </article> <!-- post end -->
-
-                        <!-- Pagination -->
-                        <nav class="col full pagination">
-                                <ul>
-                              <li><span class="page-numbers prev inactive">Prev</span></li>
-                                    <li><span class="page-numbers current">1</span></li>
-                                    <li><a href="#" class="page-numbers">2</a></li>
-                              <li><a href="#" class="page-numbers">3</a></li>
-                              <li><a href="#" class="page-numbers">4</a></li>
-                              <li><a href="#" class="page-numbers">5</a></li>
-                              <li><a href="#" class="page-numbers">6</a></li>
-                              <li><a href="#" class="page-numbers">7</a></li>
-                              <li><a href="#" class="page-numbers">8</a></li>
-                              <li><a href="#" class="page-numbers">9</a></li>
-                                    <li><a href="#" class="page-numbers next">Next</a></li>
-                                </ul>
-                            </nav>
-
-                     </div> <!-- Primary End-->
-
-                     <div id="secondary" class="four columns end">
-
-                        <aside id="sidebar">
-
-                           <div class="widget widget_search">
-                              <h5>Search</h5>
-                              <form action="#">
-
-                                 <input class="text-search" type="text" onfocus="if (this.value == 'Search here...') { this.value = ''; }" onblur="if(this.value == '') { this.value = 'Search here...'; }" value="Search here...">
-                                 <input type="submit" class="submit-search" value="">
-
-                              </form>
-                           </div>
-
-                           <div class="widget widget_text">
-                              <h5 class="widget-title">Text Widget</h5>
-                              <div class="textwidget">Proin gravida nibh vel velit auctor aliquet.
-                              Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum,
-                              nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus
-                              a sit amet mauris. Morbi accumsan ipsum velit. </div>
-                             </div>
-
-                           <div class="widget widget_categories">
-                              <h5 class="widget-title">Categories</h5>
-                              <ul class="link-list cf">
-                                 <li><a href="#">Designs</a></li>
-                                 <li><a href="#">Internet</a></li>
-                                 <li><a href="#">Typography</a></li>
-                                 <li><a href="#">Photography</a></li>
-                                 <li><a href="#">Web Development</a></li>
-                                 <li><a href="#">Projects</a></li>
-                                 <li><a href="#">Other Stuff</a></li>
-                              </ul>
-                           </div>
-
-                           <div class="widget widget_tag_cloud">
-                              <h5 class="widget-title">Tags</h5>
-                              <div class="tagcloud cf">
-                                 <a href="#">drupal</a>
-                                 <a href="#">joomla</a>
-                                 <a href="#">ghost</a>
-                                 <a href="#">wordpress</a>
-                              </div>
-                           </div>
-
-                           <div class="widget widget_photostream">
-                              <h5>Photostream</h5>
-                              <ul class="photostream cf">
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                                 <li><a href="#"><img src="images/thumb.jpg" alt="thumbnail"></a></li>
-                              </ul>
-                            </div>
-
-                        </aside>
-
-                     </div> <!-- Secondary End-->
-
-                  </div>
-
-               </div> <!-- Content End-->
-            """#)
+                            Div {
+                                H5("Tags").class("widget-title")
+                                Div {
+                                    let tags: [Component] = items.prefix(PAGE_SIZE).flatMap(\.tags).map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
+                                    ComponentGroup(members: tags)
+                                }.class("tagcloud cf")
+                            }.class("widget widget_tag_cloud")
+                        }.id("sidebar")
+                    }.id("secondary")
+                        .class("four columns end")
+                }.id("page-content")
+                    .class("row")
+            }.class("content-outer")
         }.html
     }
 }

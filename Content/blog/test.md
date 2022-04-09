@@ -6,3 +6,4 @@ author: Tyler Thompson
 title: My first post
 ---
 My first post's text.
+My grammar is good

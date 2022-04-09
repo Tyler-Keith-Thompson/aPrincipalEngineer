@@ -15,10 +15,6 @@ extension Theme where Site == APrincipalEngineer {
     }
 
     private struct SparrowHTMLFactory: HTMLFactory {
-        enum HTMLFactoryError: Error {
-            case noHTMLToGenerate
-        }
-
         func makeIndexHTML(for index: Index, context: PublishingContext<APrincipalEngineer>) throws -> HTML {
             IndexHTML(index: index, context: context).html
         }

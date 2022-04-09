@@ -34,14 +34,7 @@ final class Post: SitePageProtocol {
     var html: HTML {
         SitePage(sitePage: post,
                  context: context) {
-            Div {
-                Div {
-                    Div {
-                        H1("Our Blog.")
-                        Paragraph("Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu.")
-                    }.class("ten columns centered text-center")
-                }.class("row")
-            }.id("page-title")
+            Blog.pageTitle
             Div {
                 Div {
                     Div {

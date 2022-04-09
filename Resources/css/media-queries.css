@@ -493,6 +493,10 @@
    .post-nav li a:hover { color: #eee; }
    .portfolio .portfolio-meta-list li span { color: #eee; }
    .stats-tabs li a { color: #eee; }
+   .pagination .inactive { color: #424242; }
+   .pagination .inactive:hover {
+       background-color: #323232;
+   }
 
    #sidebar .link-list li a:hover { color: #eee; }
    #sidebar .tagcloud a {
