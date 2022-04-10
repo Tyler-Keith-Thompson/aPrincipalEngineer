@@ -43,7 +43,6 @@ struct Blog: SitePageProtocol {
                  context: context) {
             Self.pageTitle
             let items = context.allItems(sortedBy: \.date, order: .descending)
-            Text("Page size: \(pageSize), offset: \(offset)")
             Div {
                 Div {
                     Div {
