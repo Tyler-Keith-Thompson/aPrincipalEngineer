@@ -47,7 +47,11 @@
 
    /* intro section - main page
    -------------------------------------------------------------------- */
-   .slider-text h1 { font: 46px/60px raleway-bold, sans-serif; }
+   .slider-text h1 {
+       font: 2.5vw raleway-bold, sans-serif;
+       max-height: 2.5vw;
+       line-height: 2.5vw;
+   }
 
    /* journal section - main page
    -------------------------------------------------------------------- */
@@ -235,7 +239,11 @@
      margin-bottom: 30px;
      width: 95%;
    }
-   .slider-text h1 { font: 38px/48px raleway-bold, sans-serif; }
+   .slider-text h1 {
+       font: 3.5vw raleway-bold, sans-serif;
+       max-height: 3.5vw;
+       line-height: 3.5vw;
+   }
    .slider-text p { font: 15px/30px notosans-regular, sans-serif; }
    .slides .slider-image { width: 100%; }
    .slides { overflow: hidden; }
@@ -427,7 +435,11 @@
    /* intro section - main page
    ------------------------------------------------------------------------- */
    .slider-text { margin-top: 36px; margin-bottom: 27px; }
-   .slider-text h1 { font: 32px/42px raleway-bold, sans-serif; }
+   .slider-text h1 {
+       font: 4vw raleway-bold, sans-serif;
+       max-height: 4vw;
+       line-height: 4vw;
+   }
    .slider-text p { font: 14px/27px notosans-regular, sans-serif; }
 
     /* journal section - main page

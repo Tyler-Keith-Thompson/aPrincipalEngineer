@@ -13,14 +13,14 @@ struct SiteIntro: Component {
             Div {
                 List {
                     ListItem {
-                        Slide(title: "Free amazing site template",
-                              content: "Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu. lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit.",
-                              image: Image("images/sliders/home-slider-image-01.png"))
+                        Slide(title: "A peek into senior technical leadership",
+                              content: "Check out our articles on being a senior technical leader. We talk about what it's like at companies of all sizes across multiple industries.",
+                              image: Image("images/sliders/Collaboration-On-Whiteboard.jpg"))
                     }
                     ListItem {
-                        Slide(title: "Responsive + HTML5 + CSS3",
-                              content: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti eos et accusamus. amet consequat enim elit noneas sit amet luctu. lacus sit amet luctus lobortis. Aenean condimentum, lacus sit amet luctus.",
-                              image: Image("images/sliders/home-slider-image-02.png"))
+                        Slide(title: "General software engineering and Swift language tips",
+                              content: "We've got Swift language tips and tricks as well as general software engineering content. How do senior technical leaders view \"good\" code?",
+                              image: Image("images/sliders/Working-On-Xcode.jpg"))
                     }
                 }.class("slides")
             }.id("intro-slider")
