@@ -32,10 +32,7 @@ extension Theme where Site == APrincipalEngineer {
 
         func makePageHTML(for page: Page,
                           context: PublishingContext<Site>) throws -> HTML {
-            SitePage(sitePage: page,
-                     context: context) {
-                page.body
-            }.html
+            HTML(.raw(page.content.body.html))
         }
 
         func makeTagListHTML(for page: TagListPage,

@@ -45,6 +45,7 @@ if #available(macOS 12.0, *) {
         .group([].map(PublishingStep.installPlugin)),
         .optional(.copyResources()),
         .addMarkdownFiles(),
+        .installPlugin(.generatePaginatedBlogPages),
         .sortItems(by: \.date, order: .descending),
         .generateHTML(withTheme: .sparrow),
         .generateSiteMap()

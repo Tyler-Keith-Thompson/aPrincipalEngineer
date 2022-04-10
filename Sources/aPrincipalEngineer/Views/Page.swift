@@ -27,7 +27,7 @@ struct SitePage {
                 .url(context.site.url(for: sitePage.path)),
                 .title(context.site.name),
                 .description(context.site.description),
-                .forEach(["\(pathModifier)css/default.css", "\(pathModifier)css/layout.css", "\(pathModifier)css/media-queries.css"], { .stylesheet($0) }),
+                .forEach(["css/default.css", "css/layout.css", "css/media-queries.css"], { .stylesheet(context.site.url.appendingPathComponent($0)) }),
                 .viewport(.accordingToDevice),
                 .unwrap(context.site.favicon, { .favicon($0) }),
                 .link(.rel(.appleTouchIcon), .href("apple-touch-icon.png")),

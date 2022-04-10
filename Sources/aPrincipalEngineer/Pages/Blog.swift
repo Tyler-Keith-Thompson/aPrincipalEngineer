@@ -13,6 +13,15 @@ import Publish
 struct Blog: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let section: Section<APrincipalEngineer>
+    let pageSize: Int
+    let offset: Int
+
+    init(context: PublishingContext<APrincipalEngineer>, section: Section<APrincipalEngineer>, pageSize: Int = 10, offset: Int = 0) {
+        self.context = context
+        self.section = section
+        self.pageSize = pageSize
+        self.offset = offset
+    }
 
     static var pageTitle: Component {
         PageTitle(title: "Our Blog.", subtitle: "Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu.")
@@ -34,12 +43,12 @@ struct Blog: SitePageProtocol {
         SitePage(sitePage: section,
                  context: context) {
             Self.pageTitle
-            let PAGE_SIZE = Int.max
             let items = context.allItems(sortedBy: \.date, order: .descending)
+            Text("Page size: \(pageSize), offset: \(offset)")
             Div {
                 Div {
                     Div {
-                        let components: [Component] = items.prefix(PAGE_SIZE).map { post in
+                        let components: [Component] = items.prefix((pageSize * offset) + pageSize).suffix(pageSize).map { post in
                             Article {
                                 Div {
                                     H1(post.title)
@@ -68,25 +77,9 @@ struct Blog: SitePageProtocol {
                             }.class("post")
                         }
                         ComponentGroup(members: components)
-                        Navigation {
-                            let pages = items.count / PAGE_SIZE
-                            let paginationLinks: [Component] = (0..<pages).map { pageNumber in
-                                // add current if we are on the current page
-                                ListItem {
-                                    Span("\(pageNumber+1)").class("page-numbers")
-                                }
-                            }
-                            if paginationLinks.count > 1 {
-                                List {
-                                    ListItem { Span("Prev").class("page-numbers prev inactive") }
-                                    ComponentGroup(members: paginationLinks)
-                                    ListItem { Span("Next").class("page-numbers next") }
-                                }
-                            }
-                        }.class("col full pagination")
+                        pagination
                     }.id("primary")
                         .class("eight columns")
-                    // Aside goes here
                     Div {
                         Element(name: "aside") {
                             Div {
@@ -107,7 +100,7 @@ struct Blog: SitePageProtocol {
                             Div {
                                 H5("Tags").class("widget-title")
                                 Div {
-                                    let tags: [Component] = items.prefix(PAGE_SIZE).flatMap(\.tags).map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
+                                    let tags: [Component] = items.prefix((pageSize * offset) + pageSize).suffix(pageSize).flatMap(\.tags).map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
                                     ComponentGroup(members: tags)
                                 }.class("tagcloud cf")
                             }.class("widget widget_tag_cloud")
@@ -118,5 +111,44 @@ struct Blog: SitePageProtocol {
                     .class("row")
             }.class("content-outer")
         }.html
+    }
+
+    var pagination: Component {
+        Navigation {
+            let items = context.allItems(sortedBy: \.date, order: .descending)
+            let currentPage = offset + 1
+            let pages = items.count / pageSize
+            let paginationLinks: [Component] = (0..<pages).map { pageNumber in
+                // add current if we are on the current page
+                ListItem {
+                    Link(url: context.site.url.appendingPathComponent("pages").appendingPathComponent("\(pageNumber+1)").appendingPathComponent("index.html")) {
+                        Span("\(pageNumber+1)").class("page-numbers").class(pageNumber+1 == currentPage ? "current" : "")
+                    }
+                }
+            }
+            if paginationLinks.count > 1 {
+                List {
+                    ListItem {
+                        if currentPage == 1 {
+                            Span("Prev").class("page-numbers prev inactive")
+                        } else {
+                            Link(url: context.site.url.appendingPathComponent("pages").appendingPathComponent("\(currentPage-1)").appendingPathComponent("index.html")) {
+                                Span("Prev").class("page-numbers prev")
+                            }
+                        }
+                    }
+                    ComponentGroup(members: paginationLinks)
+                    ListItem {
+                        if currentPage == pages {
+                            Span("Next").class("page-numbers next inactive")
+                        } else {
+                            Link(url: context.site.url.appendingPathComponent("pages").appendingPathComponent("\(currentPage+1)").appendingPathComponent("index.html")) {
+                                Span("Next").class("page-numbers next")
+                            }
+                        }
+                    }
+                }
+            }
+        }.class("col full pagination")
     }
 }
