@@ -24,3 +24,4 @@ jobs:
         NETLIFY_DEPLOY_TO_PROD: true
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         build_directory: Output
+        install_command: echo already built
