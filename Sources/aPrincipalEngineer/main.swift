@@ -45,6 +45,7 @@ if #available(macOS 12.0, *) {
         .optional(.copyResources()),
         .addMarkdownFiles(),
         .installPlugin(.generatePaginatedBlogPages),
+        .copyFile(at: "Robots.txt"),
         .sortItems(by: \.date, order: .descending),
         .generateHTML(withTheme: .sparrow),
         .generateSiteMap()
