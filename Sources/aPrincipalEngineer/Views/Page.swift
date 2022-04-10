@@ -27,11 +27,22 @@ struct SitePage {
                 .title(context.site.name),
                 .description(context.site.description),
                 .forEach(["css/default.css", "css/layout.css", "css/media-queries.css"], { .stylesheet(context.site.url.appendingPathComponent($0)) }),
+                .stylesheet("https://cdn.jsdelivr.net/npm/@algolia/algoliasearch-netlify-frontend@1/dist/algoliasearchNetlify.css"),
                 .viewport(.accordingToDevice),
                 .unwrap(context.site.favicon, { .favicon($0) }),
                 .link(.rel(.appleTouchIcon), .href("apple-touch-icon.png")),
                 .link(.rel(.shortcutIcon), .href("favicon.ico")),
-                .script(.src("js/modernizr.js"))
+                .script(.src("js/modernizr.js")),
+                .script(.src("https://cdn.jsdelivr.net/npm/@algolia/algoliasearch-netlify-frontend@1/dist/algoliasearchNetlify.js")),
+                .script(.raw(#"""
+                  algoliasearchNetlify({
+                    appId: '5LMBR94DOB',
+                    apiKey: '83252e57c44e2bd29ba4f9e6b53e7a69',
+                    siteId: '644efd51-7b54-49ee-85ea-35078be936cf',
+                    branch: 'master',
+                    selector: 'div#search',
+                  });
+                """#))
             ),
             .body {
                 SiteNavigation(context: context, page: sitePage)

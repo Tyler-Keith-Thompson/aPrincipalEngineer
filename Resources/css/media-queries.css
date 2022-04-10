@@ -509,6 +509,11 @@
    .pagination .inactive:hover {
        background-color: #323232;
    }
+   .aa-Autocomplete, .aa-Panel, .aa-DetachedContainer {
+       --color-background: #282323 !important;
+       --color-selected: #453d3d !important;
+       --color-text: #eee !important;
+   }
 
    #sidebar .link-list li a:hover { color: #eee; }
    #sidebar .tagcloud a {

@@ -177,6 +177,12 @@ img { border-radius: 3px; }
    right: 18px;
    /*display: none !important;*/
 }
+.aa-InputWrapperPrefix {
+    --aa-search-input-height: none;
+}
+.aa-Autocomplete, .aa-Panel, .aa-DetachedContainer {
+    --height: 40px !important;
+}
 
 #primary { }
 
