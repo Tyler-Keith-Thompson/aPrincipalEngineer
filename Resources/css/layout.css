@@ -25,13 +25,13 @@
 /* a. Common Styles
 /* ------------------------------------------------------------------ */
 
-body { background: #D2D8D8 url(../images/bg.jpg); }
+body { background-color: #D2D8D8; }
 img { border-radius: 3px; }
 .content-outer { background: #fff }
 
 /* page title */
 #page-title {
-   background: #383232 url(../images/header-bg.jpg);
+   background-color: #383232;
    padding-top: 42px;
    padding-bottom: 54px;
 }
@@ -187,7 +187,7 @@ img { border-radius: 3px; }
 header {
    height: 96px;
    width: 100%;
-   background: #383232 url(../images/header-bg.jpg);
+   background-color: #383232;
 }
 
 /* header logo */
@@ -352,7 +352,7 @@ ul#nav ul li a {
 /* c. Intro Section - Main Page
 /* ------------------------------------------------------------------ */
 
-#intro { background: #383232 url(../images/header-bg.jpg); }
+#intro { background-color: #383232; }
 
 /* Flex Slider
 /* ------------------------------------------------------------------ */
@@ -493,7 +493,7 @@ ul#nav ul li a {
 /* ------------------------------------------------------------------ */
 
 #info {
-   background: #fff url(../images/content-bg.jpg);
+   background-color: #fff;
    padding-top: 60px;
    padding-bottom: 42px;
 }
@@ -512,7 +512,7 @@ ul#nav ul li a {
 /* ------------------------------------------------------------------ */
 
 #works {
-   background: #f5f5f5 url(../images/works-bg.jpg);
+   background-color: #f5f5f5;
    padding-top: 48px;
    padding-bottom: 36px;
    border-top: 1px solid #E3E8E8;
@@ -629,7 +629,7 @@ ul#nav ul li a {
 /* ------------------------------------------------------------------ */
 
 #journal {
-   background: #fff url(../images/content-bg.jpg);
+   background-color: #fff;
    padding-top: 60px;
    padding-bottom: 48px;
 }
@@ -728,7 +728,7 @@ ul#nav ul li a {
 /* ------------------------------------------------------------------ */
 
 #tweets {
-   background: #f5f5f5 url(../images/tweets-bg.jpg);
+   background-color: #f5f5f5;
    padding-top: 60px;
    padding-bottom: 30px;
    border-top: 1px solid #E3E8E8;

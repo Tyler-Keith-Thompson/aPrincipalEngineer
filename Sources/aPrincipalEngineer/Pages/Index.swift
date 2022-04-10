@@ -27,20 +27,20 @@ struct IndexHTML: SitePageProtocol {
                 Div {
                     Div {
                         Div {
-                            H2("Clean & Modern.")
-                            Paragraph("Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.")
+                            H2("Opinion Warning!")
+                            Paragraph("This blog covers a host of topics that are difficult to objectively measure. You'll find it very opinion heavy, but those opinions are formed from lots of experience.")
                         }.class("columns")
                         Div {
-                            H2("Responsive.")
-                            Paragraph("Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.")
+                            H2("Employee Oriented.")
+                            Paragraph("There are plenty of blogs catered to businesses. What you'll find here is for employees. If you want to become a senior technical leader then this is the place for you!")
                         }.class("columns")
                         Div {
-                            H2("HTML5 + CSS3.")
-                            Paragraph("Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.")
+                            H2("Engineering.")
+                            Paragraph("You'll find lots of engineering content. This all comes from personal experience on large and small teams across multiple companies.")
                         }.class("columns s-first")
                         Div {
-                            H2("Free of Charge.")
-                            Paragraph("Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.")
+                            H2("Apple Development.")
+                            Paragraph("We love Apple development and the Swift programming language! Expect to see full-stack style swift posts, this isn't just about iOS, this is about an entire ecosystem of which iOS is one part.")
                         }.class("columns s-first")
                     }.class("bgrid-quarters s-bgrid-halves")
                 }.class("row")
