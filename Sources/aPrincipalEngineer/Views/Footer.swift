@@ -21,7 +21,7 @@ struct SiteFooter: Component {
                             ListItem { Link("Home.", url: context.site.url.appendingPathComponent("index.html").absoluteString) }
                             ListItem { Link("Blog.", url: context.site.url.appendingPathComponent("blog").appendingPathComponent("index.html").absoluteString) }
                             ListItem { Link("About.", url: context.site.url.appendingPathComponent("about").appendingPathComponent("index.html").absoluteString) }
-                            ListItem { Link("Contact.", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }
+//                            ListItem { Link("Contact.", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }
                         }.class("footer-nav")
                         Div {
                             Paragraph {

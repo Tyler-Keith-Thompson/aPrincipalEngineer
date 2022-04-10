@@ -38,7 +38,7 @@ struct SiteNavigation: Component {
                                 Link("Blog", url: context.site.url.appendingPathComponent("blog").appendingPathComponent("index.html").absoluteString)
                             }.class(page.path == "blog.html" ? "current" : "")
                             ListItem { Link("About", url: context.site.url.appendingPathComponent("about").appendingPathComponent("index.html").absoluteString) }.class(page.path == "about.html" ? "current" : "")
-                            ListItem { Link("Contact", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }.class(page.path == "contact.html" ? "current" : "")
+//                            ListItem { Link("Contact", url: context.site.url.appendingPathComponent("contact").appendingPathComponent("index.html").absoluteString) }.class(page.path == "contact.html" ? "current" : "")
                         }.id("nav")
                             .class("nav")
                     }.id("nav-wrap")
