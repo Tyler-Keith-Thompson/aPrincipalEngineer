@@ -1,5 +1,0 @@
-# Algolia-Crawler-Verif: 2518B5D9DDB16166
-
-User-agent: *
-Allow: /
-Sitemap: https://www.aprincipalengineer.com/sitemap.xml
