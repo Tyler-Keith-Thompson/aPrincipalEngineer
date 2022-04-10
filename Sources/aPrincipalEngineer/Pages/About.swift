@@ -8,7 +8,7 @@
 import Plot
 import Publish
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 struct About: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let section: Section<APrincipalEngineer>

@@ -9,7 +9,7 @@ import Publish
 import Plot
 import Foundation
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 final class BlogHighlights: Component {
     let context: PublishingContext<APrincipalEngineer>
     let items: [Item<APrincipalEngineer>]
@@ -54,7 +54,7 @@ final class BlogHighlights: Component {
                                         Text(self.visibleDateFormatter.string(from: item.date))
                                     }.attribute(named: "datetime", value: self.timeElementDateFormatter.string(from: item.date))
                                         .class("post-date")
-                                    Span("By \(item.metadata.author.name.formatted())")
+                                    Span("By \(item.metadata.author.formattedName)")
                                         .class("dauthor")
                                 }
                             }.class("two columns post-meta end")

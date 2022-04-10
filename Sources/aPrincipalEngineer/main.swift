@@ -3,7 +3,7 @@ import Publish
 import Plot
 
 // This type acts as the configuration for your website.
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 struct APrincipalEngineer: Website {
     enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:

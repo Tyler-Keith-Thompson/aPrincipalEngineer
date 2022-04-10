@@ -8,10 +8,15 @@
 import Publish
 import Foundation
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 struct Author: WebsiteItemMetadata {
     let name: PersonNameComponents
     let bio: Markdown
+
+    var formattedName: String {
+        let formatter = PersonNameComponentsFormatter()
+        return formatter.string(from: name)
+    }
 
     enum AuthorDecodingError: Error {
         case noAuthorFound(name: String)
@@ -22,8 +27,9 @@ struct Author: WebsiteItemMetadata {
                && lhs.bio.string == rhs.bio.string
     }
 
-    fileprivate init(name: PersonNameComponents, bio: Markdown) {
-        self.name = name
+    fileprivate init(name: String, bio: Markdown) {
+        let formatter = PersonNameComponentsFormatter()
+        self.name = formatter.personNameComponents(from: name)!
         self.bio = bio
     }
 
@@ -31,7 +37,7 @@ struct Author: WebsiteItemMetadata {
         let container = try decoder.singleValueContainer()
         let nameLookup = try container.decode(String.self)
 
-        guard let author = Self.allAuthors.first(where: { $0.name.formatted().lowercased() == nameLookup.lowercased() }) else {
+        guard let author = Self.allAuthors.first(where: { $0.formattedName.lowercased() == nameLookup.lowercased() }) else {
             throw AuthorDecodingError.noAuthorFound(name: nameLookup)
         }
 
@@ -45,11 +51,11 @@ struct Author: WebsiteItemMetadata {
     }
 }
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 extension Author {
     static var allAuthors: [Author] {
         [
-            .init(name: PersonNameComponents(namePrefix: nil, givenName: "Tyler", middleName: "Keith", familyName: "Thompson", nameSuffix: nil, nickname: nil, phoneticRepresentation: nil),
+            .init(name: "Tyler Keith Thompson",
                   bio: Markdown("""
                     Tyler Thompson is a Principal Engineer with over 15 years experience. He currently works as a Principal Software Engineer for Zillow Group. Before working at Zillow he was a Principal Software Engineer for a consulting company and worked across many different industries.
                   """))

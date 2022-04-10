@@ -9,7 +9,7 @@ import Publish
 import Plot
 import Foundation
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 extension Plugin where Site == APrincipalEngineer {
     static var generatePaginatedBlogPages: Self {
         Plugin(name: "Generated Paginated Blog Pages") { context in

@@ -9,7 +9,7 @@ import Foundation
 import Publish
 import Plot
 
-@available(macOS 12.0, *)
+@available(macOS 10.12, *)
 final class Post: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let post: Item<APrincipalEngineer>
@@ -68,7 +68,7 @@ final class Post: SitePageProtocol {
                                         Image(url: self.context.site.url.appendingPathComponent("images").appendingPathComponent("tyler-thompson.png"), description: "post-image")
                                     }.class("gravatar")
                                     Div {
-                                        H5(self.post.metadata.author.name.formatted())
+                                        H5(self.post.metadata.author.formattedName)
                                         self.post.metadata.author.bio
                                     }.class("about")
                                 }.class("bio cf")
