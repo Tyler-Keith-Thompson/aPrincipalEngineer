@@ -8,7 +8,6 @@
 import Publish
 import Plot
 
-@available(macOS 10.12, *)
 extension Theme where Site == APrincipalEngineer {
     static var sparrow: Self {
         Theme(htmlFactory: SparrowHTMLFactory())

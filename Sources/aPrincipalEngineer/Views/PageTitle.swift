@@ -8,7 +8,6 @@
 import Publish
 import Plot
 
-@available(macOS 10.12, *)
 struct PageTitle: Component {
     let title: String
     let subtitle: String

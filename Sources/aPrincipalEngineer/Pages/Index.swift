@@ -8,7 +8,6 @@
 import Publish
 import Plot
 
-@available(macOS 10.12, *)
 struct IndexHTML: SitePageProtocol {
     let index: Index
     let context: PublishingContext<APrincipalEngineer>

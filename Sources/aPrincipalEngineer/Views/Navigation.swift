@@ -8,7 +8,6 @@
 import Plot
 import Publish
 
-@available(macOS 10.12, *)
 struct SiteNavigation: Component {
     let context: PublishingContext<APrincipalEngineer>
     let page: SitePageProtocol

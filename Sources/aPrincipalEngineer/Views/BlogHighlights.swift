@@ -9,7 +9,6 @@ import Publish
 import Plot
 import Foundation
 
-@available(macOS 10.12, *)
 final class BlogHighlights: Component {
     let context: PublishingContext<APrincipalEngineer>
     let items: [Item<APrincipalEngineer>]

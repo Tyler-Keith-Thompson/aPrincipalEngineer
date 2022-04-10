@@ -9,7 +9,6 @@ import Foundation
 import Publish
 import Plot
 
-@available(macOS 10.12, *)
 final class Post: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let post: Item<APrincipalEngineer>

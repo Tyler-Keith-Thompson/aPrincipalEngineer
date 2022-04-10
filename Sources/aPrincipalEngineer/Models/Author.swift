@@ -8,15 +8,11 @@
 import Publish
 import Foundation
 
-@available(macOS 10.12, *)
 struct Author: WebsiteItemMetadata {
-    let name: PersonNameComponents
+    let name: String
     let bio: Markdown
 
-    var formattedName: String {
-        let formatter = PersonNameComponentsFormatter()
-        return formatter.string(from: name)
-    }
+    var formattedName: String { name }
 
     enum AuthorDecodingError: Error {
         case noAuthorFound(name: String)
@@ -28,8 +24,7 @@ struct Author: WebsiteItemMetadata {
     }
 
     fileprivate init(name: String, bio: Markdown) {
-        let formatter = PersonNameComponentsFormatter()
-        self.name = formatter.personNameComponents(from: name)!
+        self.name = name
         self.bio = bio
     }
 
@@ -51,11 +46,10 @@ struct Author: WebsiteItemMetadata {
     }
 }
 
-@available(macOS 10.12, *)
 extension Author {
     static var allAuthors: [Author] {
         [
-            .init(name: "Tyler Keith Thompson",
+            .init(name: "Tyler Thompson",
                   bio: Markdown("""
                     Tyler Thompson is a Principal Engineer with over 15 years experience. He currently works as a Principal Software Engineer for Zillow Group. Before working at Zillow he was a Principal Software Engineer for a consulting company and worked across many different industries.
                   """))

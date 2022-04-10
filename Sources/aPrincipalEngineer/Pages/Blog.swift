@@ -9,7 +9,6 @@ import Foundation
 import Plot
 import Publish
 
-@available(macOS 10.12, *)
 struct Blog: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
     let section: Section<APrincipalEngineer>
