@@ -42,6 +42,10 @@ struct SitePage {
                     branch: 'master',
                     selector: 'div#search',
                   });
+                """#)),
+                .script(.raw(#"""
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6671003298911092"
+                     crossorigin="anonymous"></script>
                 """#))
             ),
             .body {

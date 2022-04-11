@@ -38,18 +38,13 @@ struct APrincipalEngineer: Website {
     let content = Content()
 }
 
-// This will generate your website using the built-in Foundation theme:
-if #available(macOS 12.0, *) {
-    try APrincipalEngineer().publish(using: [
-        .group([].map(PublishingStep.installPlugin)),
-        .optional(.copyResources()),
-        .addMarkdownFiles(),
-        .installPlugin(.generatePaginatedBlogPages),
-        .copyFile(at: "robots.txt"),
-        .sortItems(by: \.date, order: .descending),
-        .generateHTML(withTheme: .sparrow),
-        .generateSiteMap()
-    ])
-} else {
-    fatalError("macOS 12 is required to")
-}
+try APrincipalEngineer().publish(using: [
+    .group([].map(PublishingStep.installPlugin)),
+    .optional(.copyResources()),
+    .addMarkdownFiles(),
+    .installPlugin(.generatePaginatedBlogPages),
+    .copyFile(at: "robots.txt"),
+    .sortItems(by: \.date, order: .descending),
+    .generateHTML(withTheme: .sparrow),
+    .generateSiteMap()
+])
