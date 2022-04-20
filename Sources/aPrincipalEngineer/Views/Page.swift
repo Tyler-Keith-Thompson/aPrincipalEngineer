@@ -36,8 +36,8 @@ struct SitePage {
                 .script(.src("https://cdn.jsdelivr.net/npm/@algolia/algoliasearch-netlify-frontend@1/dist/algoliasearchNetlify.js")),
                 .script(.raw(#"""
                   algoliasearchNetlify({
-                    appId: '5LMBR94DOB',
-                    apiKey: '83252e57c44e2bd29ba4f9e6b53e7a69',
+                    appId: '8NTJ9FBH6D',
+                    apiKey: '3710476d73f618f3e5e17e7045d987a9',
                     siteId: '644efd51-7b54-49ee-85ea-35078be936cf',
                     branch: 'master',
                     selector: 'div#search',
