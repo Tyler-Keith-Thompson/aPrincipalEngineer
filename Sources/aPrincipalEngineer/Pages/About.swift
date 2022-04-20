@@ -16,7 +16,7 @@ struct About: SitePageProtocol {
         SitePage(sitePage: section,
                  context: context) {
             ComponentGroup(html: #"""
-                  <!-- Page Title
+                  <!-- Page Title 
                   ================================================== -->
                   <div id="page-title">
 
