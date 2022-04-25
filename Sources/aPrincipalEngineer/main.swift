@@ -1,6 +1,7 @@
 import Foundation
 import Publish
 import Plot
+import SplashPublishPlugin
 
 // This type acts as the configuration for your website.
 struct APrincipalEngineer: Website {
@@ -41,6 +42,7 @@ struct APrincipalEngineer: Website {
 try APrincipalEngineer().publish(using: [
     .group([].map(PublishingStep.installPlugin)),
     .optional(.copyResources()),
+    .installPlugin(.splash(withClassPrefix: "")),
     .addMarkdownFiles(),
     .installPlugin(.generatePaginatedBlogPages),
     .copyFile(at: "robots.txt"),
