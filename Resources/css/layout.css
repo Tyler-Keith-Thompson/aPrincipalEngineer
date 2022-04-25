@@ -214,6 +214,14 @@ header .logo a {
 
 /* primary navigation
 --------------------------------------------------------------------- */
+.search_top {
+    display: none;
+}
+
+.search_nav {
+    display: block;
+}
+
 #nav-wrap ul, #nav-wrap li, #nav-wrap a {
 	margin: 0;
 	padding: 0;
@@ -358,7 +366,11 @@ ul#nav ul li a {
 /* c. Intro Section - Main Page
 /* ------------------------------------------------------------------ */
 
-#intro { background-color: #383232; }
+#intro {
+    display: inline-block;
+    margin-top: -8px;
+    background-color: #383232;
+}
 
 /* Flex Slider
 /* ------------------------------------------------------------------ */

@@ -17,6 +17,9 @@ struct SiteNavigation: Component {
             Div {
                 Div {
                     Div {
+                        Div { }.id("search")
+                    }.class("widget widget_search search_top")
+                    Div {
                         Link(url: "index.html") {
                             H2("A Principal Engineer")
                         }
@@ -40,7 +43,7 @@ struct SiteNavigation: Component {
                             ListItem {
                                 Div {
                                     Div { }.id("search")
-                                }.class("widget widget_search")
+                                }.class("widget widget_search search_nav")
                             }
                         }.id("nav")
                             .class("nav")

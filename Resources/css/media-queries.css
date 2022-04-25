@@ -86,14 +86,24 @@
 
    /* mobile navigation
    -------------------------------------------------------------------- */
+   .search_top {
+       display: block;
+       margin-top: 5px;
+   }
+
+   .search_nav {
+       display: none;
+   }
+
    #nav-wrap {
       width: auto;
       margin: 0;
 
       position: absolute;
-      top: 0;
+      top: 15px;
       right: 0;
    }
+
    #nav-wrap > a {
 	   width: 48px;
 		height: 48px;
