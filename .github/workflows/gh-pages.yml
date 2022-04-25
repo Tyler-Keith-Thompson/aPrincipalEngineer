@@ -13,7 +13,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-        
+    - name: Generate Site
+      run: swift run 
     - name: Deploy
       uses: jsmrcaga/action-netlify-deploy@v1.7.2
       with:
@@ -21,4 +22,4 @@ jobs:
         NETLIFY_DEPLOY_TO_PROD: true
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         build_directory: Output
-        install_command: swift run 
+        install_command: echo "already built"
