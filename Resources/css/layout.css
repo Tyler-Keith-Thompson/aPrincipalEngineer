@@ -1260,7 +1260,7 @@ pre code {
 }
 
 pre code .keyword {
-    color: #e73289;
+    color: #ca49a2;
 }
 
 pre code .type {
@@ -1280,11 +1280,11 @@ pre code .number {
 }
 
 pre code .string {
-    color: #fa641e;
+    color: #eb5650;
 }
 
 pre code .comment {
-    color: #6b8a94;
+    color: #77ce66;
 }
 
 pre code .dotAccess {
@@ -1292,5 +1292,5 @@ pre code .dotAccess {
 }
 
 pre code .preprocessing {
-    color: #b68a00;
+    color: #dd9464;
 }
