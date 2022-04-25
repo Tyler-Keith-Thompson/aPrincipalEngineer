@@ -39,14 +39,14 @@ struct SitePage {
                     appId: '8NTJ9FBH6D',
                     apiKey: '3710476d73f618f3e5e17e7045d987a9',
                     siteId: '644efd51-7b54-49ee-85ea-35078be936cf',
-                    branch: 'master',
+                    branch: 'main',
                     selector: 'div#search',
                   });
                 """#)),
-                .script(.raw(#"""
+                .raw(#"""
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6671003298911092"
                      crossorigin="anonymous"></script>
-                """#))
+                """#)
             ),
             .body {
                 SiteNavigation(context: context, page: sitePage)
