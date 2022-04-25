@@ -3,3 +3,12 @@
 User-agent: *
 Allow: /
 Sitemap: https://www.aprincipalengineer.com/sitemap.xml
+
+User-agent: Algolia Crawler
+Disallow: /blog/
+Disallow: /blog/index.html
+Disallow: /index.html
+Disallow: /
+
+User-agent: Algolia Crawler
+Allow: /*

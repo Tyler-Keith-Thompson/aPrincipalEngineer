@@ -49,7 +49,9 @@ struct Blog: SitePageProtocol {
                         let components: [Component] = items.prefix((pageSize * offset) + pageSize).suffix(pageSize).map { post in
                             Article {
                                 Div {
-                                    H1(post.title)
+                                    Link(url: self.context.site.url.appendingPathComponent(post.path.absoluteString).appendingPathComponent("index.html").absoluteString) {
+                                        H1(post.title)
+                                    }
                                     Paragraph {
                                         Element(name: "time") {
                                             Text(Self.visibleDateFormatter.string(from: post.date))
