@@ -49,10 +49,14 @@ struct Author: WebsiteItemMetadata {
 extension Author {
     static var allAuthors: [Author] {
         [
-            .init(name: "Tyler Thompson",
-                  bio: Markdown("""
-                    Tyler Thompson is a Principal Engineer with over 15 years experience. He currently works as a Principal Software Engineer for Zillow Group. Before working at Zillow he was a Principal Software Engineer for a consulting company and worked across many different industries.
-                  """))
+            .tylerThompson
         ]
+    }
+
+    static var tylerThompson: Author {
+        .init(name: "Tyler Thompson",
+              bio: Markdown("""
+                Tyler Thompson is a Principal Engineer with over 15 years experience. He currently works as a Principal Software Development Engineer for Zillow Group. Before working at Zillow he was a Principal Software Engineer for World Wide Technology and worked across many different industries.
+              """))
     }
 }

@@ -77,7 +77,7 @@ final class Post: SitePageProtocol {
                     }.id("primary")
                         .class("eight columns")
                     Div {
-                        Element(name: "aside") {
+                        Aside {
                             Div {
                                 H5("Text Widget").class("widget-title")
                                 Div {
