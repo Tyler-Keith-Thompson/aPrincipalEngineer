@@ -23,7 +23,7 @@ struct Blog: SitePageProtocol {
     }
 
     static var pageTitle: Component {
-        PageTitle(title: "Our Blog.", subtitle: "Aenean condimentum, lacus sit amet luctus lobortis, dolores et quas molestias excepturi enim tellus ultrices elit, amet consequat enim elit noneas sit amet luctu.")
+        PageTitle(title: "Our Blog.", subtitle: "A place for general career advice, Swift programming language insights, and insights into how to become a principal engineer.")
     }
 
     static var visibleDateFormatter: DateFormatter = {
@@ -78,14 +78,10 @@ struct Blog: SitePageProtocol {
                         pagination
                     }.id("primary")
                         .class("eight columns")
+
                     Div {
                         Element(name: "aside") {
-                            Div {
-                                H5("Text Widget").class("widget-title")
-                                Div {
-                                    Text("Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus a sit amet mauris. Morbi accumsan ipsum velit")
-                                }.class("textwidget")
-                            }.class("widget widget_text")
+                            TextWidget(title: "About Us", text: "A Principal Engineer was created to give tips and advice to those seeking to grow as Software Engineers. As I look back on my career and reflect on how I have suceeded I decided it's time to share that with anybody who is interested. The blog is full of opinions and experiences very much colored by my life, but it's all stuff I wish I could've told myself starting out.")
 
                             Div {
                                 H5("Categories").class("widget-title")

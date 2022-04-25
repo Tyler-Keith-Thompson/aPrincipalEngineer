@@ -6,7 +6,6 @@
 //
 
 import Plot
-import Plot
 import Publish
 
 struct Aside: Component {

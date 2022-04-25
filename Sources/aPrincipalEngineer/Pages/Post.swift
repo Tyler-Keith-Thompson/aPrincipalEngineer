@@ -78,12 +78,7 @@ final class Post: SitePageProtocol {
                         .class("eight columns")
                     Div {
                         Aside {
-                            Div {
-                                H5("Text Widget").class("widget-title")
-                                Div {
-                                    Text("Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus a sit amet mauris. Morbi accumsan ipsum velit")
-                                }.class("textwidget")
-                            }.class("widget widget_text")
+                            TextWidget(title: "About Us", text: "A Principal Engineer was created to give tips and advice to those seeking to grow as Software Engineers. As I look back on my career and reflect on how I have suceeded I decided it's time to share that with anybody who is interested. The blog is full of opinions and experiences very much colored by my life, but it's all stuff I wish I could've told myself starting out.")
 
                             Div {
                                 H5("Categories").class("widget-title")
@@ -106,6 +101,7 @@ final class Post: SitePageProtocol {
                 }.id("page-content")
                     .class("row")
             }.class("content-outer")
+
             ComponentGroup(html: #"""
             <script>
                 (function() {

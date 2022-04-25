@@ -42,12 +42,14 @@ struct About: SitePageProtocol {
                         .class("eight columns post")
                     Div {
                         Aside {
-                            TextWidget(title: "Text Widget", text: "Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus a sit amet mauris. Morbi accumsan ipsum velit")
                             Div {
                                 H5("Social")
                                 Paragraph {
                                     Text("LinkedIn: ")
                                     Link("Tyler K. Thompson", url: "https://www.linkedin.com/in/tyler-k-thompson/").linkTarget(.blank)
+                                    LineBreak()
+                                    Text("GitHub: ")
+                                    Link("Tyler-Keith-Thompson", url: "https://github.com/tyler-Keith-Thompson").linkTarget(.blank)
                                 }
                             }.class("widget widget_contact")
                         }.id("sidebar")

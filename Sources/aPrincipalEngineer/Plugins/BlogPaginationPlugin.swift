@@ -24,6 +24,7 @@ extension Plugin where Site == APrincipalEngineer {
                 let blog = Blog(context: context, section: blogSection, pageSize: PAGE_SIZE, offset: PAGE_SIZE * i)
                 return Page(path: Path("pages/\(index)"), content: .init(title: "TEST", description: "TEST", body: .init(html: blog.html.render()), date: Date(), lastModified: Date(), imagePath: nil, audio: nil, video: nil))
             }
+
             pages.forEach {
                 context.addPage($0)
             }
