@@ -1,26 +1,26 @@
-name: Netlify Deploy
+# name: Netlify Deploy
 
-on:
-  push:
-    branches:
-    - main
+# on:
+#   push:
+#     branches:
+#     - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    container:
-      image: "swift:latest"
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Generate Site
-      run: swift run 
-    - name: Deploy
-      uses: jsmrcaga/action-netlify-deploy@v1.7.2
-      with:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_DEPLOY_TOKEN }}
-        NETLIFY_DEPLOY_TO_PROD: true
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        build_directory: Output
-        install_command: echo "already installed"
-        build_command: echo "no build necessary"
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     container:
+#       image: "swift:latest"
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v1
+#     - name: Generate Site
+#       run: swift run 
+#     - name: Deploy
+#       uses: jsmrcaga/action-netlify-deploy@v1.7.2
+#       with:
+#         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_DEPLOY_TOKEN }}
+#         NETLIFY_DEPLOY_TO_PROD: true
+#         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+#         build_directory: Output
+#         install_command: echo "already installed"
+#         build_command: echo "no build necessary"

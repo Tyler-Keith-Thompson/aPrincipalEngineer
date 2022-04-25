@@ -1,6 +1,0 @@
-# Configuration for a plugin published to npm
-[[plugins]]
-package = "@algolia/netlify-plugin-crawler"
-  [plugins.inputs]
-  branches = ['master', 'main']
-  customDomain = "aprincipalengineer.com"
