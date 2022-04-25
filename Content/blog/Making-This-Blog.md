@@ -1,5 +1,5 @@
 ---
-date: 2022-24-10 20:30
+date: 2022-04-24 20:30
 description: Learn about how "A Principal Engineer" was created using Swift!
 tags: engineering, swift
 author: Tyler Thompson
