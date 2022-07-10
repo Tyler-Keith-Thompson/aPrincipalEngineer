@@ -9,6 +9,7 @@ struct APrincipalEngineer: Website {
         // Add the sections that you want your website to contain here:
         case blog
         case about
+        case subscribe
     }
 
     struct ItemMetadata: WebsiteItemMetadata {
@@ -26,7 +27,7 @@ struct APrincipalEngineer: Website {
         I spend most of my free time honing my skills in my favorite programming language (Swift). I've become an avid believer in automated testing and DevOps practices. I incorporate that into both my professional code and my personal code.
         """
         let residence = "Colorado, United States"
-        let yearsInIndustry = 14
+        let yearsInIndustry = 15
         let primarySkill = "Apple Development"
     }
 

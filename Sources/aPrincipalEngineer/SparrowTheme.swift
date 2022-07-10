@@ -23,6 +23,7 @@ extension Theme where Site == APrincipalEngineer {
             switch section.id {
                 case .blog: return Blog(context: context, section: section).html
                 case .about: return About(context: context, section: section).html
+                case .subscribe: return Subscribe(context: context, section: section).html
             }
         }
 

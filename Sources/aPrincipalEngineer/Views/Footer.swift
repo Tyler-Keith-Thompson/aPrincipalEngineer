@@ -23,9 +23,11 @@ struct SiteFooter: Component {
                         }.class("footer-nav")
                         Div {
                             Paragraph {
+                                Link("RSS Feed", url: context.site.url.appendingPathComponent("subscribe").appendingPathComponent("index.html").absoluteString)
+                                Text(" | ")
                                 Text("Generated using ")
                                 Link("Publish", url: "https://github.com/johnsundell/publish")
-                                Text("\n | \n")
+                                Text(" | ")
                                 Link("Original Site Template Copyright &copy; 2014 Sparrow", url: "http://www.styleshout.com/")
                             }
                         }.class("align-center")
