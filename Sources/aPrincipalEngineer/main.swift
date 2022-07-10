@@ -48,5 +48,6 @@ try APrincipalEngineer().publish(using: [
     .copyFile(at: "robots.txt"),
     .sortItems(by: \.date, order: .descending),
     .generateHTML(withTheme: .sparrow),
-    .generateSiteMap()
+    .generateSiteMap(),
+    .generateRSSFeed(including: [ .blog ])
 ])
