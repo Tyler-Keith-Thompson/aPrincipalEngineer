@@ -1,7 +1,7 @@
 ---
 date: 2022-07-17 15:30
 description: My thoughts and opinions on the value of automated testing.
-tags: engineering, career, testing
+tags: engineering, testing
 author: Tyler Thompson
 title: Some Thoughts on Automated Testing
 ---
@@ -26,4 +26,4 @@ First, to be clear, even with a mature and robust automated testing suite bugs w
 - **Ability to support desirable change**: This primarily means the ability to refactor. A good automated testing suite isn't coupled to implementation details, and is instead focused on desired behavior. This means that if you want to change to a new architecture or completely refactor your codebase it's preferable that your test harness supports that change.
 - **Proximity to code**: Given the choice between 2 test harnesses that prove the same thing, one executing locally and one executing in the cloud, I'll take the local test suite. Having tests live in close proximity to code encourages tests to be frequently run, it can mean that your tests can execute without internet access, and it means that they're convenient to sanity check commits and other small units of work in real time.
 
-In the next article we'll dive into each of these concepts one-by-one and talk about how to maximize and measure each one. For now, be that voice on your team to push for automated testing, don't let tests become an afterthought. You'll find that writing tests encourages better architectural decisions, allows for better release processes, and despite an initial investment, greatly speeds up development.
+In [the next article](https://www.aprincipalengineer.com/blog/automated-testing-cost/index.html) we'll dive into each of these concepts one-by-one and talk about how to maximize and measure each one. For now, be that voice on your team to push for automated testing, don't let tests become an afterthought. You'll find that writing tests encourages better architectural decisions, allows for better release processes, and despite an initial investment, greatly speeds up development.
