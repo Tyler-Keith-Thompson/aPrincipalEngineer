@@ -97,7 +97,7 @@ struct Blog: SitePageProtocol {
                             Div {
                                 H5("Tags").class("widget-title")
                                 Div {
-                                    let tags: [Component] = items.prefix((pageSize * offset) + pageSize).suffix(pageSize).flatMap(\.tags).map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
+                                    let tags: [Component] = items.dropFirst(offset).prefix(pageSize).flatMap(\.tags).uniqued().map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
                                     ComponentGroup(members: tags)
                                 }.class("tagcloud cf")
                             }.class("widget widget_tag_cloud")
