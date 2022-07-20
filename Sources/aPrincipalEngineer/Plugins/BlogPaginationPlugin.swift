@@ -8,6 +8,11 @@
 import Publish
 import Plot
 import Foundation
+import Algorithms
+
+extension APrincipalEngineer {
+    static let BLOG_PAGE_SIZE = 10
+}
 
 extension Plugin where Site == APrincipalEngineer {
     static var generatePaginatedBlogPages: Self {
@@ -17,11 +22,10 @@ extension Plugin where Site == APrincipalEngineer {
                     infoMessage: "Unable to find blog section"
                 )
             }
-            let PAGE_SIZE = 10
             let allItems = context.sections.flatMap { $0.items }
-            let pages = (0..<allItems.count / PAGE_SIZE).map { i -> Page in
-                let index = i + 1
-                let blog = Blog(context: context, section: blogSection, pageSize: PAGE_SIZE, offset: PAGE_SIZE * i)
+            let pages = allItems.chunks(ofCount: Site.BLOG_PAGE_SIZE).enumerated().map { (offset, _) -> Page in
+                let index = offset + 1
+                let blog = Blog(context: context, section: blogSection, pageSize: Site.BLOG_PAGE_SIZE, offset: Site.BLOG_PAGE_SIZE * offset)
                 return Page(path: Path("pages/\(index)"), content: .init(title: "Blog - Page \(index)", description: "A Principal Engineer Blog - Page \(index)", body: .init(html: blog.html.render()), date: Date(), lastModified: Date(), imagePath: nil, audio: nil, video: nil))
             }
 

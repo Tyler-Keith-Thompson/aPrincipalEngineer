@@ -8,6 +8,7 @@
 import Foundation
 import Plot
 import Publish
+import Algorithms
 
 struct Blog: SitePageProtocol {
     let context: PublishingContext<APrincipalEngineer>
@@ -15,7 +16,7 @@ struct Blog: SitePageProtocol {
     let pageSize: Int
     let offset: Int
 
-    init(context: PublishingContext<APrincipalEngineer>, section: Section<APrincipalEngineer>, pageSize: Int = 10, offset: Int = 0) {
+    init(context: PublishingContext<APrincipalEngineer>, section: Section<APrincipalEngineer>, pageSize: Int = APrincipalEngineer.BLOG_PAGE_SIZE, offset: Int = 0) {
         self.context = context
         self.section = section
         self.pageSize = pageSize
@@ -46,7 +47,7 @@ struct Blog: SitePageProtocol {
             Div {
                 Div {
                     Div {
-                        let components: [Component] = items.prefix((pageSize * offset) + pageSize).suffix(pageSize).map { post in
+                        let components: [Component] = items.dropFirst(offset).prefix(pageSize).map { post in
                             Article {
                                 Div {
                                     Link(url: self.context.site.url.appendingPathComponent(post.path.absoluteString).appendingPathComponent("index.html").absoluteString) {
@@ -112,8 +113,8 @@ struct Blog: SitePageProtocol {
     var pagination: Component {
         Navigation {
             let items = context.allItems(sortedBy: \.date, order: .descending)
-            let currentPage = offset + 1
-            let pages = items.count / pageSize
+            let currentPage = (offset >= pageSize) ? (offset / pageSize) + 1 : 1
+            let pages = items.chunks(ofCount: pageSize).count
             let paginationLinks: [Component] = (0..<pages).map { pageNumber in
                 // add current if we are on the current page
                 ListItem {
