@@ -1,6 +1,6 @@
 ---
-date: 2022-07-19 1:30
-description: Learn how to minimize false negative rates writing automated tests. Learn about the different processes and tools that can help with a low false negative rate.
+date: 2022-07-19 11:45
+description: Learn how to minimize false negative rates writing automated tests. Learn about the different processes and tools that can help with a low false negative rates.
 tags: engineering, testing
 author: Tyler Thompson
 title: Automated Testing: False Negative Rate
@@ -18,3 +18,5 @@ Lastly, the wrong assertion can easily create false negatives. One advantage to 
 Start by eliminating external dependencies as much as you reasonably can. Did you need an integration test or can it be a contract test? Do you need to actually send a request of HTTP or can you stub your network layer? Then eliminate causes of delays. For example, disable animations when running your tests. Finally, avoid sleeping for a set duration like the plague. If your test must wait, wait on a specific condition, like a network call completing, or a view rendering, or a control becoming enabled. It's okay to wait with a timeout, but adding `sleep` to your automated test is a surefire way to cause false negatives and brittle tests.
 
 I also suggest avoiding prototypical UI testing frameworks. Appium, XCUITest, selenium, and others like them are incredibly slow frameworks. While they can provide value in an e2e suite, you're better off using a faster and more reliable framework. For example, using [ViewInspector](https://github.com/nalexn/ViewInspector) to test SwiftUI, or [UIUTest](https://github.com/nallick/UIUTest) to test UIKit. Both of these are unit testing frameworks, but they give a lot of the same value that UI testing frameworks give. For example, they perform hit testing, they can throw an error if you try and tap on a disabled button, and more. They're also much more consistent and reliable.
+
+In [the next article](https://www.aprincipalengineer.com/blog/automated-testing-false-positive-rate/index.html) we'll go over details on false positive rates and how to lower them.
