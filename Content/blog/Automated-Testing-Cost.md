@@ -53,7 +53,7 @@ Unit tests are the cheapest kind of tests, they're amazingly fast and very relia
 Using a service like pact is great because it validates both systems are adhering to the contract. Wiremock could be useful, but might also be achievable with a simple HTTP stubbing library. Either way your system makes assumptions about a contract, these tests document those assumptions and asser that they're correct.
 
 #### Integration tests
-Integration tests are more expensive that contract tests. If you can prove all you need to with unit and contract tests, you can avoid writing integration tests. That said, sometimes verifying a contract is met isn't enough. For example, if your system depends not only on the contract being correct but also observable behavior being correct in a different system. An example might be creating a resources, then deleting that resource behaves as expected. 
+Integration tests are more expensive that contract tests. If you can prove all you need to with unit and contract tests, you can avoid writing integration tests. That said, sometimes verifying a contract is met isn't enough. For example, if your system depends not only on the contract being correct but also observable behavior being correct in a different system. An example might be creating a resource, then deleting that resource behaves as expected. 
 
 While there are integration testing tools a lot of them start violating the principal of proximity to your code. For example you can maintain postman scripts for integration testing, but those aren't as close to your production code as another test target that performs network calls would be. I recommend writing integration tests simply, in the same language you wrote your production code in.
 
@@ -70,3 +70,5 @@ If your e2e testing suite is the only one that catches a legitimate problem this
 Think of every kind of test you might write in terms of expense. If they take a long time to execute and are brittle they are more expensive. If they execute very quickly and consistently then they are cheap. As much as you possibly can, push towards the cheapest tests you can write. I've released very large projects that are backed entirely by sociable unit tests and I had extreme confidence in them. I've also seen teams bogged down with hours of end-to-end tests that failed half the time. It's not a great place to be in. 
 
 The cheaper your tests are, the more you can run them. Your e2e suite might take 20 minutes and only be run when you're about to release, but your unit testing suite will likely be run constantly while developing and as part of CI pipeline. Given that the whole point is fast feedback for developers you want to be executing your tests as frequently as possible.
+
+[The next article](https://www.aprincipalengineer.com/blog/automated-testing-false-negative-rate/index.html) will cover false negative rates and how to lower them.
