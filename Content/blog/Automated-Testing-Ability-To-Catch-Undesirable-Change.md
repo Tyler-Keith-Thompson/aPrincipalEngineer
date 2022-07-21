@@ -6,7 +6,7 @@ author: Tyler Thompson
 title: Automated Testing: Ability to Catch Undesirable Change
 ---
 
-## The undesirable change principal
+## The undesirable change principle
 **Ability to catch undesirable change**: This is one of the primary purposes of a test harness. Undesirable change usually means bugs. Automated tests report on change in a codebase. Make sure reported changes are undesirable. 
 
 ## Coverage is not a good primary metric

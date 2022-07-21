@@ -6,7 +6,7 @@ author: Tyler Thompson
 title: Automated Testing: False Negative Rate
 ---
 
-## The false negative principal
+## The false negative principle
 **False negative rate**: Tests that fail for the wrong reasons are disasterous. The more this happens the more likely teams are to ignore their tests. An ignored test suite is not providing value. Therefore, a test harness with a lower false negative rate is preferable.
 
 ## What causes false negatives?

@@ -6,7 +6,7 @@ author: Tyler Thompson
 title: Automated Testing: False Positive Rate
 ---
 
-## The false positive principal
+## The false positive principle
 **False positive rate**: Tests with a high false positive rate don't cause immediate pain, they cause pain later on. This undermines confidence in all tests and can ruin efforts to get automated tests in place. Therefore, a test harness with a lower false positive rate is preferable.
 
 ## Feel pain as soon as possible

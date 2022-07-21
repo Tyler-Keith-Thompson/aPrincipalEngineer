@@ -6,7 +6,7 @@ author: Tyler Thompson
 title: Automated Testing: Cost
 ---
 
-## The cost principal
+## The cost principle
 **Cost**: This is often measured in time. If two tests harnesses prove the same thing, but one executes in a few seconds and the other in a few minutes, prefer the one that executes faster. Fast tests give developers immediate feedback and are more likely to be run repeatedly.
 
 ## Disambiguating testing terminology
