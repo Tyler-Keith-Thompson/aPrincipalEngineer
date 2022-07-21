@@ -39,15 +39,18 @@ struct Blog: SitePageProtocol {
         return formatter
     }()
 
+    var allPosts: [Item<APrincipalEngineer>] {
+        section.items.sorted { $0.date > $1.date }
+    }
+
     var html: HTML {
         SitePage(sitePage: section,
                  context: context) {
             Self.pageTitle
-            let items = context.allItems(sortedBy: \.date, order: .descending)
             Div {
                 Div {
                     Div {
-                        let components: [Component] = items.dropFirst(offset).prefix(pageSize).map { post in
+                        let components: [Component] = allPosts.dropFirst(offset).prefix(pageSize).map { post in
                             Article {
                                 Div {
                                     Link(url: self.context.site.url.appendingPathComponent(post.path.absoluteString).appendingPathComponent("index.html").absoluteString) {
@@ -97,7 +100,7 @@ struct Blog: SitePageProtocol {
                             Div {
                                 H5("Tags").class("widget-title")
                                 Div {
-                                    let tags: [Component] = items.dropFirst(offset).prefix(pageSize).flatMap(\.tags).uniqued().map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
+                                    let tags: [Component] = allPosts.dropFirst(offset).prefix(pageSize).flatMap(\.tags).uniqued().map { Link($0.string, url: context.site.url.appendingPathComponent("tags").appendingPathComponent($0.string).appendingPathComponent("index.html").absoluteString) as Component }
                                     ComponentGroup(members: tags)
                                 }.class("tagcloud cf")
                             }.class("widget widget_tag_cloud")
@@ -112,9 +115,8 @@ struct Blog: SitePageProtocol {
 
     var pagination: Component {
         Navigation {
-            let items = context.allItems(sortedBy: \.date, order: .descending)
             let currentPage = (offset >= pageSize) ? (offset / pageSize) + 1 : 1
-            let pages = items.chunks(ofCount: pageSize).count
+            let pages = allPosts.chunks(ofCount: pageSize).count
             let paginationLinks: [Component] = (0..<pages).map { pageNumber in
                 // add current if we are on the current page
                 ListItem {
