@@ -1,6 +1,6 @@
 ---
 date: 2022-07-21 1:30
-description: <ADD DESCRIPTION>
+description: Supporting desirable change allows code to be refactored with ease. It involves writing tests that aren't coupled to implementation details and it can make working in a well-tested codebase a much nicer experience.
 tags: engineering, testing
 author: Tyler Thompson
 title: Automated Testing: Ability to Support Desirable Change
