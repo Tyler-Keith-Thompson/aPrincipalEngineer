@@ -34,3 +34,5 @@ Instead, test where configuration is *consumed* and assert that it's consumed co
 Much like configuration design details are rarely worth testing. For example, testing padding on a view is generally a waste of a test. The padding could change and the test would report a failure, but that failure doesn't necessarily give valuable feedback. Designs change frequently, and colors, padding, styling, fonts, and other details are more about delight than functionality. 
 
 Do test important functionality as it relates to design. For example, do test that details from a user's profile are displayed. It shouldn't matter to your automated tests *where* they are displayed, just that the information is on the screen somewhere.
+
+In [the next article](https://www.aprincipalengineer.com/blog/automated-testing-proximity-to-code/index.html) we'll go over keeping automated tests close to production code.
