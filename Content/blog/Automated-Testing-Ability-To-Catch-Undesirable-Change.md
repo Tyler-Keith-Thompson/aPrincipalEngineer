@@ -36,3 +36,5 @@ We [focused so heavily on cost](https://www.aprincipalengineer.com/blog/automate
 Tests running on a cadence can sometimes be valuable but beware of this, if you've got a separate pipeline that runs tests every week it's much easier to ignore than tests that run on every change. This has to do with where pain is felt. Running tests on commits means that you can prevent thsoe commits from being merged and part of production code. However, when running on a cadence it's unlikely you'll have the same processes in place to prevent those changes from going live.
 
 The times when I've run tests on a cadence are times when I'm writing tests for systems I don't control. For example, integration tests on an external service. It's difficult to design these tests so that they give valuable feedback. Sometimes an external service fails the test for the wrong reasons, the more this happens, the more likely it is the suite will be ignored.
+
+In [the next article](https://www.aprincipalengineer.com/blog/automated-testing-ability-to-support-desirable-change/index.html) we'll cover supporting desirable change.
