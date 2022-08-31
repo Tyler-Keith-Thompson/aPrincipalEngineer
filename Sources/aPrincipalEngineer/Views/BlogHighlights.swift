@@ -34,7 +34,7 @@ final class BlogHighlights: Component {
         Element(name: "section") {
             Div {
                 Div {
-                    H1("Our latest posts and rants.")
+                    H1("My latest posts and rants.")
                 }.class("twelve columns align-center")
             }.class("row")
             Div {

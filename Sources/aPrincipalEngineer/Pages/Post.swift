@@ -78,7 +78,7 @@ final class Post: SitePageProtocol {
                         .class("eight columns")
                     Div {
                         Aside {
-                            TextWidget(title: "About Us", text: "A Principal Engineer was created to give tips and advice to those seeking to grow as Software Engineers. As I look back on my career and reflect on how I have suceeded I decided it's time to share that with anybody who is interested. The blog is full of opinions and experiences very much colored by my life, but it's all stuff I wish I could've told myself starting out.")
+                            TextWidget(title: "About", text: "A Principal Engineer was created to give tips and advice to those seeking to grow as Software Engineers. As I look back on my career and reflect on how I have suceeded I decided it's time to share that with anybody who is interested. The blog is full of opinions and experiences very much colored by my life, but it's all stuff I wish I could've told myself starting out.")
 
                             Div {
                                 H5("Categories").class("widget-title")
