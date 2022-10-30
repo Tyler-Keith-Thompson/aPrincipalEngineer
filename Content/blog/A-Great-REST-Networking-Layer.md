@@ -3,7 +3,7 @@ date: 2022-10-30 11:30
 description: I walk through my favorite REST networking layer, and why I prefer it.
 tags: engineering, testing, swift
 author: Tyler Thompson
-title: A Great REST Netowkring Layer
+title: A Great REST Networking Layer
 ---
 
 ## Motivation
