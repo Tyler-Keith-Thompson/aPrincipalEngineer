@@ -100,6 +100,7 @@ extension RESTAPIProtocol {
 ```
 
 Our protocol now exposes a way to make `GET` requests...but it doesn't allow people to modify the outgoing request. Consumers of our protocol want 2 specific behaviors:
+
 - The ability to modify a request before it is sent.
 - If the pubslisher retries (like when a 401 is returned) then the request modifier should be recalculated.
     - To expand on this idea, look at the example in our `PostService` when the publisher chain restarts the *new* access token needs to be used, not the old one.
