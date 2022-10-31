@@ -33,7 +33,7 @@ protocol PostService {
 struct _PostService: RESTAPIProtocol, PostService {
     var baseURL = "https://api.myforum.com"
     var getPosts: AnyPublisher<Result<[Post], Error>, Never> {
-        self.get("/posts") { request in 
+        self.get(endpoint: "posts") { request in 
             request
             .addingBearerAuthorization(accessToken: User.shared.accessToken)
             .receivingJSON()
@@ -41,7 +41,7 @@ struct _PostService: RESTAPIProtocol, PostService {
         .catchHTTPErrors()
         .catchUnauthorizedAndRetryRequestWithFreshAccessToken()
         .map(\.data)
-        .decode([Post].self, decoder: JSONDecoder())
+        .decode(type: [Post].self, decoder: JSONDecoder())
         .map(Result.success)
         .catch { Just(.failure($0)) }
         .eraseToAnyPublisher()
