@@ -16,12 +16,12 @@ Let's be honest, Grand Central Dispatch (GCD) is kind of a mess. The closure-bas
 
 `async/await` is [fraught](https://wojciechkulik.pl/ios/swift-concurrency-things-they-dont-tell-you?utm_campaign=iOS%2BDev%2BWeekly&utm_medium=web&utm_source=iOS%2BDev%2BWeekly%2BIssue%2B582) [with](https://swiftsenpai.com/swift/actor-reentrancy-problem/) [perils](https://alejandromp.com/blog/the-importance-of-cooperative-cancellation/) and people don't often immediately notice them. This is especially true with the cooperative cancellation paradigm, which requires you to be smart about checking whether a task has been cancelled frequently (ideally, after every `await` boundary).
 
-This is why I prefer Combine, Apple's reactive framework. Its declarative interface, cancellation model, and flexibility with back-pressure is incredibly useful when designing a networking layer. I would argue that it is still preferrable to `async/awati`. Although I would use `async/await` for on-device concurrency concerns.
+This is why I prefer Combine, Apple's reactive framework. Its declarative interface, cancellation model, and flexibility with [backpressure](https://medium.com/@jayphelps/backpressure-explained-the-flow-of-data-through-software-2350b3e77ce7) is incredibly useful when designing a networking layer. I would argue that it is still preferrable to `async/await`. Although I would use `async/await` for on-device concurrency concerns.
 
 What's more, Combine forces users to store an `AnyCancellable` and most common methods of storing them result in appropriate cancellation. For example, if you store a `Set<AnyCanellable>` on a `UIViewController` or SwiftUI `@StateObject`, they are all cancelled when the view is removed from the hierarchy. So, if a user were to hit the "back" button in a navigation stack, for example, all ongoing requests for that view would simply cancel.
 
 ## Service design
-Ideally, other parts of the code utilize the network layer [through a service](https://en.wikipedia.org/wiki/Service_(systems_architecture)). For example, if I had an API that stored and retreived posts on a forum, I'd create a `PostService` which returned deserialized `Post` objects. Other parts of my code would ask the `PostService` for things, and it would either reach out over the network, or pull from a cache, or any other number of things.
+Ideally, other parts of the code utilize the network layer [through a service](https://en.wikipedia.org/wiki/Service_(systems_architecture)). For example, if I had an API that stored and retrieved posts on a forum, I'd create a `PostService` which returned deserialized `Post` objects. Other parts of my code would ask the `PostService` for things, and it would either reach out over the network, or pull from a cache, or any other number of things.
 
 To that end, our network layer should make it easy for a service to use it with extreme flexibility, but not expose things outside of those services. I think a protocol is a great way of handling this. What if we had something like this:
 
@@ -49,9 +49,9 @@ struct _PostService: RESTAPIProtocol, PostService {
 }
 ```
 
-Consumers only know about `PostService` which exposes a way to get posts, but the service itself (`_PostService`) knows lots of details, like the base uRL, endpoint, the fact it needs authentication, it can handle back-pressure issues like receiving a 401 and retrying the request, it knows we're using REST and JSON and it knows how to deserialize into an array of `Post`. 
+Consumers only know about `PostService` which exposes a way to get posts, but the service itself (`_PostService`) knows lots of details, like the base URL, endpoint, the fact it needs authentication, it can handle backpressure issues like receiving a 401 and retrying the request, it knows we're using REST and JSON and it knows how to deserialize into an array of `Post`. 
 
-## Creating a RESTAPIProtocol
+## Creating a `RESTAPIProtocol`
 One quirk of making requests with Swift is that you get a `URLResponse` which needs to be converted into an `HTTPURLResponse` to check things like the status code. To make this easier, our protocol should return an `HTTPURLResponse`.
 
 Let's start with a simple protocol definition:
@@ -99,13 +99,13 @@ extension RESTAPIProtocol {
 }
 ```
 
-Our protocol now exposes a way to make `GET` requests...but it doesn't allow people to modify the outgoing request. Consumers of our protocol want 2 specific behaviors:
+Our protocol now exposes a way to make `GET` requests... but it doesn't allow people to modify the outgoing request. Consumers of our protocol want 2 specific behaviors:
 
 - The ability to modify a request before it is sent.
 - If the pubslisher retries (like when a 401 is returned) then the request modifier should be recalculated.
     - To expand on this idea, look at the example in our `PostService` when the publisher chain restarts the *new* access token needs to be used, not the old one.
 
-Because `Just` is a little fiddly, anything we put int here will be cached, we need to be a little bit clever. Let's modify `RESTAPIProtocol`
+Because `Just` is a little fiddly, anything we put in there will be cached, we need to be a little bit clever. Let's modify `RESTAPIProtocol`
 
 ```
 public protocol RESTAPIProtocol {
