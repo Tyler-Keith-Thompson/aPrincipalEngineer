@@ -23,7 +23,7 @@ Using these methods can be a great way to know where to stop one test and start 
 
 It's okay for tests to not be DRY. For those unfamiliar DRY stands for "Don't Repeat Yourself" and is a good practice when writing production code. It encourages sharing similar code. However, when writing tests this can cause problems. I might say to have your tests be damp, don't share setup based on data, or configuration. If your tests share too much setup code, they might prove brittle whenever preconditions for one test change.
 
-You should also strive to design your tests to be completely independent. If one test depends on another happening first, you're creating a test suiet that will be hard to maintain. If you really want to drive this home most test runners allow for randomized execution order. 
+You should also strive to design your tests to be completely independent. If one test depends on another happening first, you're creating a test suite that will be hard to maintain. If you really want to drive this home most test runners allow for randomized execution order. 
 
 ## Don't test configuration
 We build configuration into systems because it might change frequently. For example, you might configure URLs to use for network calls, colors, fonts, and localized strings. Testing this configuration usually doesn't provide valuable feedback and the effort is normally quite large.
