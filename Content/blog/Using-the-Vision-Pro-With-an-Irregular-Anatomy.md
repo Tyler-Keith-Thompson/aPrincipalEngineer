@@ -24,6 +24,7 @@ Actually, yes! While I couldn't find a reasonable way during the setup to change
 Getting past the setup was still *very* cumbersome because of the VO cursor moving with where it thought I was looking, but eventually I was able to use the virtual keyboard to create a password and get through to the home screen!
 
 A dive into the Accessibility Settings finally gave me what I really wanted, a way to tell the Vision Pro that I don't want it to use eye tracking to move the cursor. There were several options:
+
 - Eyes -- bad for me
 - Head -- This actually works quite well and it's when I went with. The downside is that the Vision Pro is heavy and this involves a fair bit of neck movement
 - Wrist -- I might give this more of a shot, you have a lot more "waving your hands around", but it comes with the advantage that when you tap your fingers to select something it's picked up much better and more frequently by the Vision Pro
