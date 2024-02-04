@@ -7,7 +7,7 @@ title: A Great REST Networking Layer
 ---
 
 ## Motivation
-A great networking layer is hard to come by. Some people pull in 3rd party dependencies with interceptors and lots of layers of abstraction, some just use `URLSession` and GCD. I personally don't like either option, at least for simple REST calls. This article will be a bit long, but I'll walk you through my preferred networking layer and explain why I like it.
+A great networking layer is hard to come by. Some people pull in 3rd party dependencies with interceptors and lots of layers of abstraction, and some just use `URLSession` and GCD. I personally don't like either option, at least for simple REST calls. This article will be a bit long, but I'll walk you through my preferred networking layer and explain why I like it.
 
 > NOTE: All code for this example can be found [on my GitHub random projects page](https://github.com/Tyler-Keith-Thompson/RandomSideProjects/tree/main/RESTNetworkLayer)
 
@@ -16,12 +16,12 @@ Let's be honest, Grand Central Dispatch (GCD) is kind of a mess. The closure-bas
 
 `async/await` is [fraught](https://wojciechkulik.pl/ios/swift-concurrency-things-they-dont-tell-you?utm_campaign=iOS%2BDev%2BWeekly&utm_medium=web&utm_source=iOS%2BDev%2BWeekly%2BIssue%2B582) [with](https://swiftsenpai.com/swift/actor-reentrancy-problem/) [perils](https://alejandromp.com/blog/the-importance-of-cooperative-cancellation/) and people don't often immediately notice them. This is especially true with the cooperative cancellation paradigm, which requires you to be smart about checking whether a task has been cancelled frequently (ideally, after every `await` boundary).
 
-This is why I prefer Combine, Apple's reactive framework. Its declarative interface, cancellation model, and flexibility with [backpressure](https://medium.com/@jayphelps/backpressure-explained-the-flow-of-data-through-software-2350b3e77ce7) is incredibly useful when designing a networking layer. I would argue that it is still preferable to `async/await`. Although I would use `async/await` for on-device concurrency concerns.
+This is why I prefer Combine, Apple's reactive framework. Its declarative interface, cancellation model, and flexibility with [backpressure](https://medium.com/@jayphelps/backpressure-explained-the-flow-of-data-through-software-2350b3e77ce7) are incredibly useful when designing a networking layer. I would argue that it is still preferable to `async/await`. Although I would use `async/await` for on-device concurrency concerns.
 
-What's more, Combine forces users to store an `AnyCancellable` and most common methods of storing them result in appropriate cancellation. For example, if you store a `Set<AnyCanellable>` on a `UIViewController` or SwiftUI `@StateObject`, they are all cancelled when the view is removed from the hierarchy. So, if a user were to hit the "back" button in a navigation stack, for example, all ongoing requests for that view would simply cancel.
+What's more, Combine forces users to store an `AnyCancellable`, and the most common methods of storing them result in appropriate cancellation. For example, if you store a `Set<AnyCanellable>` on a `UIViewController` or SwiftUI `@StateObject`, they are all cancelled when the view is removed from the hierarchy. So, if a user were to hit the "back" button in a navigation stack, for example, all ongoing requests for that view would simply cancel.
 
 ## Service design
-Ideally, other parts of the code utilize the network layer [through a service](https://en.wikipedia.org/wiki/Service_(systems_architecture)). For example, if I had an API that stored and retrieved posts on a forum, I'd create a `PostService` which returned deserialized `Post` objects. Other parts of my code would ask the `PostService` for things, and it would either reach out over the network, or pull from a cache, or any other number of things.
+Ideally, other parts of the code utilize the network layer [through a service](https://en.wikipedia.org/wiki/Service_(systems_architecture)). For example, if I had an API that stored and retrieved posts on a forum, I'd create a `PostService` that returned deserialized `Post` objects. Other parts of my code would ask the `PostService` for things, and it would either reach out over the network, pull from a cache, or any other number of things.
 
 To that end, our network layer should make it easy for a service to use it with extreme flexibility, but not expose things outside of those services. I think a protocol is a great way of handling this. What if we had something like this:
 
@@ -132,7 +132,7 @@ extension RESTAPIProtocol {
 }
 ```
 
-Now consumers can modify a request just like our `PostService` example. Calculating the `requestModifier` in the `flatMap` gives us the behavior we want when the chain is restarted.
+Now consumers can modify a request just like in our `PostService` example. Calculating the `requestModifier` in the `flatMap` gives us the behavior we want when the chain is restarted.
 
 ## Fluent request modification
 You may have noticed that in my proposed service, we used a [fluent API](https://en.wikipedia.org/wiki/Fluent_interface#Swift). This not only fits well with Combine, which is already fluent, but it makes it easy to compose sets of headers. Here's how we can do that:
@@ -152,7 +152,7 @@ This also has the advantage of not mutating the original request, avoiding mutat
 ## Error handling
 We can create a series of `HTTPError` types, some for 400-499 `HTTPClientError` types and some for 500-599 `HTTPServerError` types. These can even peak into a request and find standard headers that give more error info. For example, a 429 usually comes with a `Retry-After` header indicating how long you should wait before attempting the request again.
 
-Once those errors types are created, we can create a combine modifier that handles them, here's an example:
+Once those error types are created, we can create a Combine modifier that handles them, here's an example:
 
 ```
 extension Publisher {
@@ -172,7 +172,7 @@ extension Publisher {
 }
 ```
 
-Users may also want to be able to catch specific kinds of errors, which Combine doesn't quite allow on its own. This gives them the ability to add custom logic on the request chain. Here's an example that responds to rate limiting (a 429)
+Users may also want to be able to catch specific kinds of errors, which Combine doesn't quite allow on its own. This gives them the ability to add custom logic to the request chain. Here's an example that responds to rate limiting (a 429)
 
 ```
 extension Publisher {
@@ -212,12 +212,12 @@ extension Publisher {
 }
 ```
 
-There's a few complicated combine type things to learn, but look at just how easy it is to handle rate limiting! No interceptors and complex retry logic, just a simple combination of existing Combine operators. I'll leave it as an exercise to the reader to imagine how you could add even more flexibility (like retrying on a 401) to this. Alternatively, check out [the GitHub repo](https://github.com/Tyler-Keith-Thompson/RandomSideProjects/tree/main/RESTNetworkLayer) to see an example.
+There are a few complicated Combine-type things to learn, but look at just how easy it is to handle rate limiting! No interceptors and complex retry logic, just a simple combination of existing Combine operators. I'll leave it as an exercise for the reader to imagine how you could add even more flexibility (like retrying on a 401) to this. Alternatively, check out [the GitHub repo](https://github.com/Tyler-Keith-Thompson/RandomSideProjects/tree/main/RESTNetworkLayer) to see an example.
 
 ## Testing
 Okay, so while reactive programming might be new to people, this whole layer isn't too intimidating. But how hard is it to test? I personally use [OHTTPStubs](https://github.com/AliSoftware/OHHTTPStubs) and create my own [fluent wrapper around it](https://github.com/AliSoftware/OHHTTPStubs/issues/349) to make this dead simple.
 
-Let's start by defining a combine test helper:
+Let's start by defining a Combine test helper:
 ```
 extension Publisher {
     func firstValue(timeout: TimeInterval = 0.3,
@@ -253,7 +253,7 @@ extension Publisher {
 }
 ```
 
-Now I'll show you how easy it is to test our rate limiting logic:
+Now I'll show you how easy it is to test our rate-limiting logic:
 ```
 import Foundation
 import Combine
@@ -432,4 +432,4 @@ final class HTTPOperatorsTests: XCTestCase {
 There may be a lot of code, but each test is actually quite simple and understandable.
 
 ## Wrapping up
-It's fair to say this probably isn't a beginner level networking layer. But the power and flexibility of Combine, coupled with the cancellation model make it a really useful tool. This article certainly didn't cover all the details, check out [the git repo](https://github.com/Tyler-Keith-Thompson/RandomSideProjects/tree/main/RESTNetworkLayer) to see even more of how it all came together. 
+It's fair to say this probably isn't a beginner-level networking layer. But the power and flexibility of Combine, coupled with the cancellation model make it a really useful tool. This article certainly didn't cover all the details, check out [the git repo](https://github.com/Tyler-Keith-Thompson/RandomSideProjects/tree/main/RESTNetworkLayer) to see even more of how it all came together. 
