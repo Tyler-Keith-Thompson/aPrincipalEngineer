@@ -32,7 +32,17 @@ struct APrincipalEngineer: Website {
     }
 
     // Update these properties to configure your website:
-    var url = ProcessInfo.processInfo.environment["RUN_FROM_FILE"] == "true" ? URL(fileURLWithPath: "\(#file)/../../../Output") : URL(string: "https://www.aprincipalengineer.com/")!
+    var url = {
+        let runFromFile = ProcessInfo.processInfo.environment["RUN_FROM_FILE"]
+        let runFromLocalhost = ProcessInfo.processInfo.environment["RUN_FROM_LOCALHOST"]
+        if runFromFile == "true" {
+            return URL(fileURLWithPath: "\(#file)/../../../Output")
+        }
+        if runFromLocalhost == "true" {
+            return URL(string: "http://localhost:8000")!
+        }
+        return URL(string: "https://www.aprincipalengineer.com/")!
+    }()
     var name = "A Principal Engineer"
     var description = "A blog about software engineering. From career advice, to side projects, to Swift language topics."
     var language: Language { .english }

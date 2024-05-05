@@ -5,6 +5,7 @@
 //  Created by Tyler Thompson on 4/9/22.
 //
 
+import Foundation
 import Plot
 import Publish
 
@@ -25,39 +26,66 @@ struct About: SitePageProtocol {
             }.id("page-title")
             Div {
                 Div {
-                    Div {
-                        Element(name: "section") {
-                            Div {
-                                Div {
-                                    Image(url: self.context.site.url.appendingPathComponent("images").appendingPathComponent("tyler-thompson.png"), description: "post-image")
-                                }.class("gravatar")
-                                Div {
-                                    H1("About the author")
-
-                                    Author.tylerThompson.bio
-                                }.class("about")
-                            }.class("bio cf")
-                        }
-                    }.id("primary")
-                        .class("eight columns post")
-                    Div {
-                        Aside {
-                            Div {
-                                H5("Social")
-                                Paragraph {
-                                    Text("LinkedIn: ")
-                                    Link("Tyler K. Thompson", url: "https://www.linkedin.com/in/tyler-k-thompson/").linkTarget(.blank)
-                                    LineBreak()
-                                    Text("GitHub: ")
-                                    Link("Tyler-Keith-Thompson", url: "https://github.com/tyler-Keith-Thompson").linkTarget(.blank)
-                                }
-                            }.class("widget widget_contact")
-                        }.id("sidebar")
-                    }.id("secondary")
-                        .class("four columns end")
+                    Element(name: "section") {
+                        H1("About the Author").class("twelve columns")
+                        AuthorSection(author: .tylerThompson, context: context)
+                    }.flowRoot()
+                    Element(name: "section") {
+                        H1("Other Contributors").class("twelve columns")
+                        AuthorSection(author: .annaliseMariottini, context: context)
+                    }.flowRoot()
                 }.id("page-content")
                     .class("row page")
             }.class("content-outer")
         }.html
+    }
+}
+
+private struct AuthorSection: Component {
+    let author: Author
+    let context: PublishingContext<APrincipalEngineer>
+
+    var body: Component {
+        Div {
+            Div {
+                Div {
+                    Image(url: context.site.url.appendingPathComponent("images").appendingPathComponent(author.image), description: "post-image")
+                }.class("gravatar")
+                Div {
+                    H2(author.name)
+                    author.bio
+                }.class("about")
+            }.class("bio cf")
+                .class("eight columns")
+            Aside {
+                Div {
+                    H5("Social")
+                    Paragraph {
+                        author.socialMedia.map(SocialMediaComponent.init).joined(separator: Node.br())
+                    }
+                }.class("widget widget_contact")
+            }.id("sidebar")
+                .class("four columns")
+        }.class("post")
+    }
+}
+
+private struct SocialMediaComponent: Component {
+    let socialMedia: SocialMedia
+
+    var body: Component {
+        ComponentGroup {
+            Text("\(socialMedia.site.rawValue): ")
+            Link(socialMedia.title, url: socialMedia.url).linkTarget(.blank)
+        }
+    }
+}
+
+extension Component {
+    /// Creates a new block formatting context with the `flow-root` display value.
+    ///
+    /// This is useful for creating a new block that contains floats.
+    fileprivate func flowRoot() -> any Component {
+        style("display: flow-root")
     }
 }
