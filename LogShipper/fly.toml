@@ -1,0 +1,19 @@
+# fly.toml app configuration file generated for logshipper-floral-sound-2543 on 2024-11-28T15:52:05-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'logshipper-floral-sound-2543'
+primary_region = 'den'
+
+[build]
+  image = 'flyio/log-shipper:latest'
+
+[[services]]
+  http_checks = []
+  internal_port = 8686
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
