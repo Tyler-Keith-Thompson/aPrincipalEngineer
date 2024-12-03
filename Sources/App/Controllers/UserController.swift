@@ -245,6 +245,7 @@ struct UserController: RouteCollection, Sendable {
             // If the credential was verified, save it to the database
             try await WebAuthnCredential(from: credential, userID: user.requireID()).save(on: req.db)
             let (accessToken, refreshToken, idToken) = try await createNewTokens(for: user, clientID: request.clientID, cache: req.cache)
+            req.auth.login(user)
             try await verifyEmailIfNecessary(for: user, queue: req.queue, cache: req.cache)
             return try await .init(accessToken: accessToken.sign(),
                                    refreshToken: refreshToken,
