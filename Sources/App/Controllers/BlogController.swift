@@ -11,16 +11,31 @@ import VaporElementary
 import Views
 import AsyncAlgorithms
 import Afluent
+import Fluent
 
 struct BlogController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        routes.get("blog", use: self.blog)
+        let blog = routes.grouped("blog")
+        blog.get(use: self.blogSearch)
+        blog.get(":blogID", use: self.postWithID)
     }
     
     @Sendable
-    func blog(req: Request) async throws -> HTMLResponse {
+    func postWithID(req: Request) async throws -> HTMLResponse {
+        guard let blogIDString = req.parameters.get("blogID"),
+              let blogID = UUID(uuidString: blogIDString),
+              let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
+            throw Abort(.notFound)
+        }
+        return try HTMLResponse {
+            PostDetail(blog: try post.toViewBlogPost())
+        }
+    }
+    
+    @Sendable
+    func blogSearch(req: Request) async throws -> HTMLResponse {
         HTMLResponse {
-            BlogPage(blogs: DeferredTask {
+            BlogSearchPage(blogs: DeferredTask {
                 try await App.BlogPost.query(on: req.db)
                     .with(\.$tags)
                     .with(\.$author)
@@ -29,12 +44,7 @@ struct BlogController: RouteCollection {
             }
                 .toAsyncSequence()
                 .flatMap { $0 }
-                .map { Views.BlogPost(tags: $0.tags.map(\.canonicalTitle),
-                                      title: $0.title,
-                                      createdAt: $0.createdAt,
-                                      author: $0.author?.toViewUser(isLoggedIn: false), // eventually convert to $0.author
-                                      description: $0.description,
-                                      content: $0.content) }
+                .map { try $0.toViewBlogPost() }
                 .eraseToAnyAsyncSequence())
         }
     }

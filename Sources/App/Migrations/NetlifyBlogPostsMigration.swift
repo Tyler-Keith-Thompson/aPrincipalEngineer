@@ -8,6 +8,7 @@
 import Fluent
 import Foundation
 
+#if DEBUG
 struct NetlifyBlogPostsMigration: AsyncMigration {
     enum MigrationError: Error {
         case cannotFindTyler
@@ -187,3 +188,4 @@ struct NetlifyBlogPostsMigration: AsyncMigration {
         try await BlogPost.find(UUID(uuidString: "274feaf9-5219-4d3d-9c09-6e8620e52db2"), on: database)?.delete(on: database)
     }
 }
+#endif

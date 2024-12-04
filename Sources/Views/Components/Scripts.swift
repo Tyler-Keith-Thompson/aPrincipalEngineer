@@ -13,5 +13,8 @@ struct Scripts: HTML {
         script(.type("application/javascript"), .src("/scripts/htmxsse.min.js")) { }
         script(.type("application/javascript"), .src("/scripts/htmxws.min.js")) { }
         script(.type("application/javascript"), .src("/scripts/htmx-ext-class-tools.js")) { }
+        script(.type("application/javascript"), .src("/scripts/highlight.min.js")) { }
+        script(.type("application/javascript"), .src("/scripts/highlight.swift.min.js")) { }
+        script { "hljs.highlightAll();" }
     }
 }

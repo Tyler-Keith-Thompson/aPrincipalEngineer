@@ -22,7 +22,7 @@ extension WebAuthnCredential {
         }
 
         func revert(on database: Database) async throws {
-            try await database.schema("webauth_credentals").delete()
+            try await database.schema(WebAuthnCredential.schema).delete()
         }
     }
 }

@@ -7,6 +7,7 @@
 import Foundation
 
 public struct BlogPost: Sendable {
+    let id: String
     let tags: [String]
     let title: String
     let createdAt: Date?
@@ -14,7 +15,8 @@ public struct BlogPost: Sendable {
     let description: String
     let content: String
     
-    public init(tags: [String], title: String, createdAt: Date?, author: User?, description: String, content: String) {
+    public init(id: String, tags: [String], title: String, createdAt: Date?, author: User?, description: String, content: String) {
+        self.id = id
         self.tags = tags
         self.title = title
         self.createdAt = createdAt

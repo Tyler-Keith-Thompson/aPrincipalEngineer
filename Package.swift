@@ -69,7 +69,7 @@ let package = Package(
                 .product(name: "ElementaryHTMX", package: "elementary-htmx"),
                 .product(name: "VaporElementary", package: "vapor-elementary"),
                 .product(name: "Ink", package: "Ink"),
-                
+
                 // Database
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),

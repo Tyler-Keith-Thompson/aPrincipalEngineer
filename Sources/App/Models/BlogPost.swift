@@ -7,6 +7,7 @@
 
 import Fluent
 import Vapor
+import Views
 
 final class BlogPost: Model, Content, @unchecked Sendable {
     static let schema = "blog_posts"
@@ -59,5 +60,17 @@ extension BlogPost {
         case draft
         case review
         case published
+    }
+}
+
+extension BlogPost {
+    func toViewBlogPost() throws -> Views.BlogPost {
+        try Views.BlogPost(id: requireID().uuidString,
+                           tags: tags.map(\.canonicalTitle),
+                           title: title,
+                           createdAt: createdAt,
+                           author: author?.toViewUser(isLoggedIn: false),
+                           description: description,
+                           content: content)
     }
 }

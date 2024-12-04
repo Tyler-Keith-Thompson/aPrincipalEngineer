@@ -41,7 +41,9 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(Tag.Migration())
     app.migrations.add(BlogPost.Migration())
     app.migrations.add(BlogPostTag.Migration())
+#if DEBUG
     app.migrations.add(NetlifyBlogPostsMigration())
+#endif
 
     //Register jobs
     let emailJob = EmailJob()
@@ -53,7 +55,7 @@ public func configure(_ app: Application) async throws {
     let hostConfig = Container.hostConfig()
     let cspConfig = ContentSecurityPolicyConfiguration(value: ContentSecurityPolicy()
         .defaultSrc(sources: CSPKeywords.none)
-        .scriptSrc(sources: hostConfig.hostingURL)
+        .scriptSrc(sources: hostConfig.hostingURL, "'sha256-O6piNkhLv4BI/Oje+MccCmgUSrS1sIp+CMaOsvD/VWU='")
         .styleSrc(sources: hostConfig.hostingURL, CSPKeywords.unsafeInline)
         .imgSrc(sources: hostConfig.hostingURL, "data:")
         .fontSrc(sources: hostConfig.hostingURL)

@@ -12,9 +12,15 @@ extension BlogPost {
         var name: String { "BlogPostMigration" }
         
         func prepare(on database: Database) async throws {
+            let statusEnum = try await database.enum("BlogPost.Status")
+                .case(BlogPost.Status.draft.rawValue)
+                .case(BlogPost.Status.review.rawValue)
+                .case(BlogPost.Status.published.rawValue)
+                .create()
+            
             try await database.schema(BlogPost.schema)
                 .id()
-                .field("status", .enum(.init(name: "BlogPost.Status", cases: BlogPost.Status.allCases.map(\.rawValue))), .required)
+                .field("status", statusEnum, .required)
                 .field("title", .string, .required)
                 .field("created_at", .datetime, .required)
                 .field("published_at", .datetime)
