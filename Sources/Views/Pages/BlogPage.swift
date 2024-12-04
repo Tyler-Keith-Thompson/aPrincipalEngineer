@@ -20,10 +20,16 @@ public struct BlogPage: HTML, Sendable {
         AsyncContent {
             DefaultContent(title: "Blog") {
                 AsyncForEach(blogs) { blog in
-                    p { "tags: \(blog.tags.joined(separator: ", "))" }
-                    p { "title: \(blog.title) \(blog.createdAt?.formatted() ?? "")" }
-                    p { "author: \(blog.author?.email ?? "unknown")" }
-                    p { "description: \(blog.description)" }
+                    h1 { blog.title }
+                    span {
+                        strong { blog.createdAt.flatMap { $0.formatted(date: .abbreviated, time: .omitted) + " " } ?? "" }
+                        for tag in blog.tags {
+                            strong { "/ " }
+                            tag
+                            " "
+                        }
+                    }
+                    p { blog.description }
                     hr()
                 }
             }
