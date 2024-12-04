@@ -24,6 +24,7 @@ public struct BlogPage: HTML, Sendable {
                     p { "title: \(blog.title) \(blog.createdAt?.formatted() ?? "")" }
                     p { "author: \(blog.author?.email ?? "unknown")" }
                     p { "description: \(blog.description)" }
+                    hr()
                 }
             }
         }

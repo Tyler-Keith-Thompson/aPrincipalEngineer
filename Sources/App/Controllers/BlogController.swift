@@ -24,6 +24,7 @@ struct BlogController: RouteCollection {
                 try await App.BlogPost.query(on: req.db)
                     .with(\.$tags)
                     .with(\.$author)
+                    .sort(\.$createdAt, .descending)
                     .all().async
             }
                 .toAsyncSequence()
