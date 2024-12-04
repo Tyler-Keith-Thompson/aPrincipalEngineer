@@ -38,6 +38,10 @@ public func configure(_ app: Application) async throws {
 #if DEBUG
     app.migrations.add(User.DebugMigration())
 #endif
+    app.migrations.add(Tag.Migration())
+    app.migrations.add(BlogPost.Migration())
+    app.migrations.add(BlogPostTag.Migration())
+    app.migrations.add(NetlifyBlogPostsMigration())
 
     //Register jobs
     let emailJob = EmailJob()

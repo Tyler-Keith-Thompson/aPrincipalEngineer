@@ -10,6 +10,7 @@ import Foundation
 import Vapor
 import Email
 import WebAuthn
+import Views
 
 final class User: Model, Content, @unchecked Sendable {
     static let schema = "users"
@@ -41,3 +42,9 @@ final class User: Model, Content, @unchecked Sendable {
 extension User: Authenticatable { }
 
 extension User: ModelSessionAuthenticatable { }
+
+extension User {
+    func toViewUser(isLoggedIn: Bool) -> Views.User {
+        .init(isLoggedIn: isLoggedIn, email: email.mailbox)
+    }
+}

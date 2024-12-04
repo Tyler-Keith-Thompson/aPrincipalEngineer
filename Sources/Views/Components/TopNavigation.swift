@@ -14,11 +14,11 @@ struct TopNavigation: HTML {
     var content: some HTML {
         nav {
             ul {
-                li {  a(.href("/")) { strong { "Vapor Demo" } } }
+                li {  a(.href("/")) { strong { "A Principal Engineer" } } }
             }
             ul {
                 li { a(.href("#")) { "Authors" } }
-                li { a(.href("#")) { "Blog" } }
+                li { a(.href("/blog")) { "Blog" } }
                 if user.isLoggedIn {
                     li { button(.hx.post("/users/logout"), .class("secondary")) { "Logout" } }
                 } else {

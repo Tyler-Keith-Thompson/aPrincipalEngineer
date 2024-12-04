@@ -113,6 +113,7 @@ let package = Package(
                 .product(name: "Elementary", package: "elementary"),
                 .product(name: "ElementaryHTMX", package: "elementary-htmx"),
                 .product(name: "Ink", package: "Ink"),
+                .product(name: "Afluent", package: "Afluent"),
             ]),
         .testTarget(
             name: "AppTests",

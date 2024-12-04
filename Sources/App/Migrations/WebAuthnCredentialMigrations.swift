@@ -12,7 +12,7 @@ extension WebAuthnCredential {
         var name: String { "CreateWebAuthnCredential" }
         
         func prepare(on database: Database) async throws {
-            try await database.schema("webauth_credentals")
+            try await database.schema(WebAuthnCredential.schema)
                 .field("id", .string, .identifier(auto: false))
                 .field("public_key", .string, .required)
                 .field("current_sign_count", .uint32, .required)

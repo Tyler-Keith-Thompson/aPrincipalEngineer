@@ -14,7 +14,7 @@ extension User {
         var name: String { "CreateUser" }
 
         func prepare(on database: Database) async throws {
-            try await database.schema("users")
+            try await database.schema(User.schema)
                 .id()
                 .field("email", .string, .required)
                 .field("validated_email", .bool, .required)

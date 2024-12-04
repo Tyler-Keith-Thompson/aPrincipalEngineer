@@ -26,4 +26,5 @@ func routes(_ app: Application) throws {
     try app.register(collection: MetricsController())
     try app.register(collection: UserController())
     try app.register(collection: ViewController())
+    try app.register(collection: BlogController())
 }

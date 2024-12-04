@@ -9,7 +9,7 @@ import Foundation
 import Parsing
 import Algorithms
 
-public struct Email: Codable, Sendable {
+public struct Email: Codable, Sendable, CustomStringConvertible {
     enum ParserError: Error {
         case emailTooLong
     }
@@ -26,6 +26,8 @@ public struct Email: Codable, Sendable {
     }
 
     public let mailbox: String
+    
+    public var description: String { mailbox }
 
     @inlinable public var address: String {
         "\(localPart)@\(domainPart)"
