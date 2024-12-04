@@ -27,7 +27,7 @@ x-shared_environment: &shared_environment
   DATABASE_PASSWORD: vapor_password
   DATABASE_URL: postgres://vapor_username:vapor_password@db:5432/vapor_database
   REDIS_URL: redis://redis:6379
-  SENDGRID_API_KEY: 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
+  SENDGRID_API_KEY: ${MY_SECRET_KEY}
   
 services:
   app:
