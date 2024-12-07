@@ -1,0 +1,46 @@
+model_file: ./blogposts.openfga
+
+tuples:
+  - user: "user:tyler"
+    relation: "admin"
+    object: "system:global"
+
+  - user: "user:author"
+    relation: "content_author"
+    object: "system:global"
+
+  - user: "system:global"
+    relation: system
+    object: "blog_post:1"
+
+  - user: "user:*"
+    relation: "viewer"
+    object: "blog_post:1"
+
+  - user: "guest:*"
+    relation: "viewer"
+    object: "blog_post:1"
+
+tests:
+  - check:
+    - user: "user:tyler"
+      object: "blog_post:1"
+      assertions:
+        can_author: true
+        can_edit: true
+        can_review: true
+        can_view: true
+    - user: "user:author"
+      object: "blog_post:1"
+      assertions:
+        can_author: true
+        can_edit: false
+        can_review: false
+        can_view: true
+    - user: "guest:1234"
+      object: "blog_post:1"
+      assertions:
+        can_author: false
+        can_edit: false
+        can_review: false
+        can_view: true
