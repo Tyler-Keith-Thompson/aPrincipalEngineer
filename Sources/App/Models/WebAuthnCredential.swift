@@ -24,12 +24,6 @@ final class WebAuthnCredential: Model, Content, @unchecked Sendable {
     @Parent(key: "user_id")
     var user: User
 
-    // TODO
-    // Add attestation
-    // authenticatorMetadata?
-    // lastAccessTime?
-    // creationDate?
-
     init() {}
 
     init(id: String, publicKey: String, currentSignCount: UInt32, userID: UUID) {
