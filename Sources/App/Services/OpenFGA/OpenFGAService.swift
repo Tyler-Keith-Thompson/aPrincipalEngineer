@@ -67,20 +67,21 @@ final class _OpenFGAService: OpenFGAService {
         let checkRequest = try OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
                                                    tuple_key: .init(user: userTypeTuple, relation: relation.rawValue, object: .init(type: object.openFGATypeName, id: object.openFGAID)),
                                                    contextual_tuples: .init(tuple_keys: []))
+        let batchRequest = OpenFGABatchCheckRequest(checks: [checkRequest])
         var hasher = Hasher()
-        checkRequest.hash(into: &hasher)
+        batchRequest.hash(into: &hasher)
         let hashValue = hasher.finalize()
         if let cachedResult = try? await Container.inMemoryCache()?.get("\(hashValue)_checkAuthorization", as: Bool.self) {
             return cachedResult
         }
 
         return try await DeferredTask {
-            try await request.client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/check",
-                                          content: checkRequest)
+            try await request.client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/batch-check",
+                                          content: batchRequest)
         }
-        .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: checkRequest)
+        .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: batchRequest)
         .tryMap {
-            try $0.content.decode(OpenFGACheckResponse.self).allowed
+            try $0.content.decode(OpenFGABatchCheckResponse.self).result.responses.allSatisfy(\.allowed)
         }
         .handleEvents(receiveOutput: {
             try? await Container.inMemoryCache()?.set("\(hashValue)_checkAuthorization", to: $0, expiresIn: .minutes(30))
