@@ -56,7 +56,7 @@ public func configure(_ app: Application) async throws {
     let hostConfig = Container.hostConfig()
     let cspConfig = ContentSecurityPolicyConfiguration(value: ContentSecurityPolicy()
         .defaultSrc(sources: CSPKeywords.none)
-        .scriptSrc(sources: hostConfig.hostingURL, "'sha256-8q6ZOty+CxDzTriwNZ0TNnfwyJ5/dBlP1i9C9ydyoHQ='")
+        .scriptSrc(sources: hostConfig.hostingURL, "'sha256-O6piNkhLv4BI/Oje+MccCmgUSrS1sIp+CMaOsvD/VWU='")
         .styleSrc(sources: hostConfig.hostingURL, CSPKeywords.unsafeInline)
         .imgSrc(sources: hostConfig.hostingURL, "data:")
         .fontSrc(sources: hostConfig.hostingURL)

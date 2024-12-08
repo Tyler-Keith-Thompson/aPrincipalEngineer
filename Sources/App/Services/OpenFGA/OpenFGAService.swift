@@ -61,7 +61,7 @@ final class _OpenFGAService: OpenFGAService {
             if let user = request.auth.get(User.self) {
                 return try .init(type: "user", id: user.requireID().uuidString)
             } else {
-                return try .init(type: "guest", id: request.id)
+                return try .init(type: "guest", id: "anonymous")
             }
         }()
         let checkRequest = try OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
