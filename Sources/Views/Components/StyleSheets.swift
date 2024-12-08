@@ -16,8 +16,6 @@ struct StyleSheets: HTML {
         // https://yohn.github.io/PicoCSS/
         link(.href("/styles/.pico.min.css"), .rel(.stylesheet))
         link(.href("/styles/modal.css"), .rel(.stylesheet))
-        link(.href("/styles/highlight.min.css"), .rel(.stylesheet))
-        link(.href("/styles/github-dark.css"), .init(name: "media", value: "(prefers-color-scheme: dark)"), .rel(.stylesheet))
-        link(.href("/styles/github.css"), .init(name: "media", value: "(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"), .rel(.stylesheet))
+        link(.href("/styles/prism.css"), .rel(.stylesheet))
     }
 }

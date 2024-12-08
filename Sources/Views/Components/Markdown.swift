@@ -11,6 +11,8 @@ import Ink
 struct Markdown: HTML {
     let markdown: String
     var content: some HTML {
-        HTMLRaw(MarkdownParser().html(from: markdown))
+        div(.class("language-swift")) {
+            HTMLRaw(MarkdownParser().html(from: markdown))
+        }
     }
 }

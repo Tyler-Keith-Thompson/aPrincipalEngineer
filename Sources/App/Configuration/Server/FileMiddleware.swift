@@ -13,17 +13,17 @@ import Vapor
 
 extension Container {
     protocol FileMiddlewareFactory {
-        func middleware(for: Application) -> CachingFileMiddleware
+        func middleware(for: Application) -> Middleware
     }
 #if DEBUG && Xcode
     struct DebugFileMiddlewareFactory: FileMiddlewareFactory {
-        func middleware(for _: Application) -> CachingFileMiddleware {
-            CachingFileMiddleware(publicDirectory: Bundle.module.bundleURL.appendingPathComponent("Contents/Resources/Public").path)
+        func middleware(for _: Application) -> Middleware {
+            FileMiddleware(publicDirectory: Bundle.module.bundleURL.appendingPathComponent("Contents/Resources/Public").path)
         }
     }
 #endif
     struct ProductionFileMiddlewareFactory: FileMiddlewareFactory {
-        func middleware(for app: Application) -> CachingFileMiddleware {
+        func middleware(for app: Application) -> Middleware {
             CachingFileMiddleware(publicDirectory: app.directory.publicDirectory, advancedETagComparison: true)
         }
     }
@@ -114,7 +114,7 @@ public final class CachingFileMiddleware: AsyncMiddleware {
                         
                         if try await FileSystem.shared.info(forFileAt: .init(absPath)) != nil {
                             // If the default file exists, stream it
-                            var response = try await request.fileio.asyncStreamFile(at: absPath, advancedETagComparison: advancedETagComparison)
+                            let response = try await request.fileio.asyncStreamFile(at: absPath, advancedETagComparison: advancedETagComparison)
                             response.headers.replaceOrAdd(name: .cacheControl, value: "max-age=604800")
                             return response
                         }
@@ -128,7 +128,7 @@ public final class CachingFileMiddleware: AsyncMiddleware {
                 }
             } else {
                 // file exists, stream it
-                var response = try await request.fileio.asyncStreamFile(at: absPath, advancedETagComparison: advancedETagComparison)
+                let response = try await request.fileio.asyncStreamFile(at: absPath, advancedETagComparison: advancedETagComparison)
                 response.headers.replaceOrAdd(name: .cacheControl, value: "max-age=604800")
                 return response
             }

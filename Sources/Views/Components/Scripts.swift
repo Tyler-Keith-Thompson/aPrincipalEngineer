@@ -13,8 +13,6 @@ struct Scripts: HTML {
         script(.type("application/javascript"), .src("/scripts/htmxsse.min.js"), .defer) { }
         script(.type("application/javascript"), .src("/scripts/htmxws.min.js"), .defer) { }
         script(.type("application/javascript"), .src("/scripts/htmx-ext-class-tools.js"), .defer) { }
-        script(.type("application/javascript"), .src("/scripts/highlight.min.js"), .id("hljs"), .defer) { }
-        script(.type("application/javascript"), .src("/scripts/highlight.swift.min.js"), .defer) { }
-        script { "document.querySelector('#hljs').addEventListener('load', function() { hljs.highlightAll(); });" }
+        script(.type("application/javascript"), .src("/scripts/prism.js"), .defer) { }
     }
 }

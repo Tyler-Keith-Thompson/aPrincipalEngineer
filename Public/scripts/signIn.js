@@ -2,6 +2,7 @@ document.addEventListener("htmx:afterSwap", function (event) {
     if (event.target.id === "login-modal") {
         const signInForm = document.querySelector("#signInForm");
 
+        if (signInForm == null) { return }
         signInForm.addEventListener("submit", async function (event) {
             event.preventDefault();
 

@@ -1,7 +1,8 @@
 document.addEventListener("htmx:afterSwap", function (event) {
     if (event.target.id === "login-modal") {
         const createAccountForm = document.querySelector("#createAccountForm");
-
+        if (createAccountForm == null) { return }
+        
         createAccountForm.addEventListener("submit", async function(event) {
             event.preventDefault();
 

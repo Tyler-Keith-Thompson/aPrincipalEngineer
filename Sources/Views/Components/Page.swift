@@ -27,7 +27,6 @@ struct Page<Head: HTML, Body: HTML, Footer: HTML>: HTMLDocument {
         link(.rel("icon"), .init(name: "sizes", value: "16x16"), .href("/favicon-16x16.png"))
         link(.rel("manifest"), .href("/site.webmanifest"))
         StyleSheets()
-        Scripts()
         _head
     }
     
@@ -40,6 +39,7 @@ struct Page<Head: HTML, Body: HTML, Footer: HTML>: HTMLDocument {
             script(.type("application/javascript"), .src("/scripts/signIn.js")) { }
             script(.type("application/javascript"), .src("/scripts/createAccount.js")) { }
         }
+        Scripts()
     }
     
     init(title: String, @HTMLBuilder head: () -> Head, @HTMLBuilder body: () -> Body, @HTMLBuilder footer: () -> Footer) {
