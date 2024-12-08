@@ -9,13 +9,6 @@ import Vapor
 import Afluent
 import DependencyInjection
 
-// http://openfga-wild-darkness-6310.flycast
-// https://openfga.dev/docs/interacting/transactional-writes
-//curl -X POST $FGA_API_URL/stores/$FGA_STORE_ID/check \
-//  -H "Authorization: Bearer $FGA_API_TOKEN" \ # Not needed if service does not require authorization
-//  -H "content-type: application/json" \
-//  -d '{"authorization_model_id": "01HVMMBCMGZNT3SED4Z17ECXCA", "tuple_key":{"user":"user:6b0b14af-59dc-4ff3-a46f-ad351f428726","relation":"viewer","object":"document:product-launch"},"contextual_tuples":{"tuple_keys":[{"user":"user:6b0b14af-59dc-4ff3-a46f-ad351f428726","relation":"member","object":"group:marketing"},{"user":"user:6b0b14af-59dc-4ff3-a46f-ad351f428726","relation":"member","object":"group:everyone"}]}}'
-
 protocol OpenFGAService {
     func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool
     func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
@@ -74,6 +67,13 @@ final class _OpenFGAService: OpenFGAService {
         let checkRequest = try OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
                                                    tuple_key: .init(user: userTypeTuple, relation: relation.rawValue, object: .init(type: object.openFGATypeName, id: object.openFGAID)),
                                                    contextual_tuples: .init(tuple_keys: []))
+        var hasher = Hasher()
+        checkRequest.hash(into: &hasher)
+        let hashValue = hasher.finalize()
+        if let cachedResult = try? await Container.inMemoryCache()?.get("\(hashValue)_checkAuthorization", as: Bool.self) {
+            return cachedResult
+        }
+
         return try await DeferredTask {
             try await request.client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/check",
                                           content: checkRequest)
@@ -82,6 +82,9 @@ final class _OpenFGAService: OpenFGAService {
         .tryMap {
             try $0.content.decode(OpenFGACheckResponse.self).allowed
         }
+        .handleEvents(receiveOutput: {
+            try? await Container.inMemoryCache()?.set("\(hashValue)_checkAuthorization", to: $0, expiresIn: .minutes(30))
+        })
         .execute()
     }
 }

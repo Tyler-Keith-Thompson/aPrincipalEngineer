@@ -84,6 +84,8 @@ public func configure(_ app: Application) async throws {
         await Container.userAuthenticatorKeyStore().add(ecdsa: ECDSA.PrivateKey<P256>())
     }
     
+    Container.inMemoryCache.register { app.caches.memory }
+    
     // register routes
     try routes(app)
 }

@@ -18,4 +18,6 @@ extension Container {
         return .redis
 #endif
     }
+    
+    static let inMemoryCache = Factory { () -> Vapor.Cache? in nil }
 }
