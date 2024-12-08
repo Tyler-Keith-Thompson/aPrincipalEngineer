@@ -13,7 +13,7 @@ struct Page<Head: HTML, Body: HTML, Footer: HTML>: HTMLDocument {
 
     var title: String
     
-    var lang: String? = "en"
+    var lang: String { "en" }
     
     let _head: Head
     let _body: Body
