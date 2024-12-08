@@ -12,6 +12,7 @@ import Views
 import AsyncAlgorithms
 import Afluent
 import Fluent
+import DependencyInjection
 
 struct BlogController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -35,17 +36,19 @@ struct BlogController: RouteCollection {
     @Sendable
     func blogSearch(req: Request) async throws -> HTMLResponse {
         HTMLResponse {
-            BlogSearchPage(blogs: DeferredTask {
-                try await App.BlogPost.query(on: req.db)
-                    .with(\.$tags)
-                    .with(\.$author)
-                    .sort(\.$createdAt, .descending)
-                    .all().async
-            }
-                .toAsyncSequence()
-                .flatMap { $0 }
-                .map { try $0.toViewBlogPost() }
-                .eraseToAnyAsyncSequence())
+            BlogSearchPage(
+                blogs: DeferredTask {
+                    try await App.BlogPost.query(on: req.db)
+                        .with(\.$tags)
+                        .with(\.$author)
+                        .sort(\.$createdAt, .descending)
+                        .all().async
+                }
+                    .toAsyncSequence()
+                    .flatMap { $0 }
+                    .map { try $0.toViewBlogPost() }
+                    .eraseToAnyAsyncSequence()
+            ).environment(user: req.auth.get(User.self))
         }
     }
 }

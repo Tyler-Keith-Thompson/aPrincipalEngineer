@@ -48,3 +48,10 @@ extension User {
         .init(isLoggedIn: isLoggedIn, email: email.mailbox)
     }
 }
+
+extension User: OpenFGAModel {
+    enum Relation: String {
+        @available(*, unavailable, message: "not a real relation")
+        case noop
+    }
+}

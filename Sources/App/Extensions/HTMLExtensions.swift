@@ -8,8 +8,8 @@
 import Elementary
 import Views
 
-extension HTML {
-    func environment(user: App.User?) -> some HTML {
+extension HTML where Self: Sendable {
+    func environment(user: App.User?) -> some HTML & Sendable {
         guard let user else {
             return self.environment(EnvironmentValue.$user, .init(isLoggedIn: false))
         }

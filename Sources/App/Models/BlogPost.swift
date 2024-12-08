@@ -74,3 +74,12 @@ extension BlogPost {
                            content: content)
     }
 }
+
+extension BlogPost: OpenFGAModel {
+    enum Relation: String {
+        case can_author
+        case can_edit
+        case can_review
+        case can_view
+    }
+}
