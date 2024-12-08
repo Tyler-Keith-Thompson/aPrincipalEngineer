@@ -89,8 +89,24 @@ final class _OpenFGAService: OpenFGAService {
     }
 }
 
+#if DEBUG
+final class DebugOpenFGAService: OpenFGAService {
+    func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool { true }
+    
+    func createRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
+    
+    func deleteRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
+}
+#endif
+
 extension Container {
-    static let openFGAService = Factory(scope: .shared) { _OpenFGAService() as OpenFGAService }
+    static let openFGAService = Factory(scope: .shared) {
+#if DEBUG
+        DebugOpenFGAService() as OpenFGAService
+#else
+        _OpenFGAService() as OpenFGAService
+#endif
+    }
 }
 
 extension Request {
