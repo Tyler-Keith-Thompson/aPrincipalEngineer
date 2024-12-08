@@ -10,7 +10,7 @@ import Afluent
 import DependencyInjection
 
 protocol OpenFGAService {
-    func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool
     func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
     func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
 }
@@ -55,19 +55,14 @@ final class _OpenFGAService: OpenFGAService {
         .execute()
     }
     
-    func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool {
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
-        let userTypeTuple: OpenFGATuple.OpenFGATypeTuple = try {
-            if let user = request.auth.get(User.self) {
-                return try .init(type: "user", id: user.requireID().uuidString)
-            } else {
-                return try .init(type: "guest", id: "anonymous")
-            }
-        }()
-        let checkRequest = try OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
-                                                   tuple_key: .init(user: userTypeTuple, relation: relation.rawValue, object: .init(type: object.openFGATypeName, id: object.openFGAID)),
-                                                   contextual_tuples: .init(tuple_keys: []))
-        let batchRequest = OpenFGABatchCheckRequest(checks: [checkRequest])
+        let allTuples = [tuple] + tuples
+        let batchRequest = OpenFGABatchCheckRequest(checks: allTuples.map {
+            OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
+                                tuple_key: $0,
+                                contextual_tuples: .init(tuple_keys: []))
+        })
         var hasher = Hasher()
         batchRequest.hash(into: &hasher)
         let hashValue = hasher.finalize()
@@ -76,8 +71,8 @@ final class _OpenFGAService: OpenFGAService {
         }
 
         return try await DeferredTask {
-            try await request.client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/batch-check",
-                                          content: batchRequest)
+            try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/batch-check",
+                                  content: batchRequest)
         }
         .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: batchRequest)
         .tryMap {
@@ -92,7 +87,7 @@ final class _OpenFGAService: OpenFGAService {
 
 #if DEBUG
 final class DebugOpenFGAService: OpenFGAService {
-    func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool { true }
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool { true }
     
     func createRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
     
@@ -112,7 +107,15 @@ extension Container {
 
 extension Request {
     func ensureUser<Object: OpenFGAModel>(_ relation: Object.Relation, object: Object) async throws {
-        guard try await Container.openFGAService().checkAuthorization(request: self, relation: relation, object: object) else {
+        let userTypeTuple: OpenFGATuple.OpenFGATypeTuple = try {
+            if let user = auth.get(User.self) {
+                return try .init(type: user.openFGATypeName, id: user.openFGAID)
+            } else {
+                return try .init(type: "guest", id: "anonymous")
+            }
+        }()
+
+        guard try await Container.openFGAService().checkAuthorization(client: client, .init(user: userTypeTuple, relation: relation, object: object)) else {
             throw Abort(.unauthorized)
         }
     }
