@@ -18,7 +18,7 @@ func routes(_ app: Application) throws {
         }
         return try await HTMLResponse {
             Index()
-                .environment(EnvironmentValue.$user, .init(isLoggedIn: false))
+                .environment(user: req.auth.get(User.self))
         }.encodeResponse(for: req)
     }
     

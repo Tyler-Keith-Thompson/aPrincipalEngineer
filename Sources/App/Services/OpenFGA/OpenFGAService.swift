@@ -46,7 +46,7 @@ final class _OpenFGAService: OpenFGAService {
                                                      deletes: .init(tuple_keys: [tuple] + tuples))
         try await DeferredTask {
             try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/write",
-                                                 content: createRequest)
+                                  content: createRequest)
         }
         .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: createRequest)
         .tryMap {

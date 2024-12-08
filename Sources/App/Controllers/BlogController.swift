@@ -16,7 +16,7 @@ import DependencyInjection
 
 struct BlogController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let blog = routes.grouped("blog")
+        let blog = routes.grouped(User.sessionAuthenticator()).grouped("blog")
         blog.get(use: self.blogSearch)
         blog.get(":blogID", use: self.postWithID)
     }
@@ -30,7 +30,7 @@ struct BlogController: RouteCollection {
         }
         try await req.ensureUser(.can_view, object: post)
         return try HTMLResponse {
-            PostDetail(blog: try post.toViewBlogPost())
+            PostDetail(blog: try post.toViewBlogPost()).environment(user: req.auth.get(User.self))
         }
     }
     

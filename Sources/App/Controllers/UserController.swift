@@ -41,7 +41,7 @@ struct UserController: RouteCollection, Sendable {
             let user = try req.auth.require(User.self)
             return HTMLResponse {
                 Profile()
-                    .environment(EnvironmentValue.$user, .init(isLoggedIn: true, email: user.email.mailbox))
+                    .environment(user: user)
             }
         }
         
