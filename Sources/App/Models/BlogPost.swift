@@ -77,6 +77,9 @@ extension BlogPost {
 
 extension BlogPost: OpenFGAModel {
     enum Relation: String {
+        case system
+        case author
+        case viewer
         case can_author
         case can_edit
         case can_review

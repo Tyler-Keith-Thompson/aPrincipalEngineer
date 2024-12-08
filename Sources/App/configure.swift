@@ -44,6 +44,7 @@ public func configure(_ app: Application) async throws {
 #if DEBUG
     app.migrations.add(NetlifyBlogPostsMigration())
 #endif
+    app.migrations.add(InitialPermissionsMigration(client: app.client))
 
     //Register jobs
     let emailJob = EmailJob()

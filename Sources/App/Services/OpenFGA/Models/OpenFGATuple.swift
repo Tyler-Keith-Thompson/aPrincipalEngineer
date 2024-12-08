@@ -49,4 +49,10 @@ extension OpenFGATuple {
                       relation: relation.rawValue,
                       object: .init(type: object.openFGATypeName, id: object.openFGAID))
     }
+    
+    init<Object: OpenFGAModel>(user: OpenFGATypeTuple, relation: Object.Relation, object: Object) throws {
+        try self.init(user: user,
+                      relation: relation.rawValue,
+                      object: .init(type: object.openFGATypeName, id: object.openFGAID))
+    }
 }

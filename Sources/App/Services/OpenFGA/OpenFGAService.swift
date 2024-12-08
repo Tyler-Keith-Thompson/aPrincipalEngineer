@@ -18,7 +18,8 @@ import DependencyInjection
 
 protocol OpenFGAService {
     func checkAuthorization<Object: OpenFGAModel>(request: Vapor.Request, relation: Object.Relation, object: Object) async throws -> Bool
-    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, tuples: OpenFGATuple...) async throws
+    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
+    func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
 }
 
 final class _OpenFGAService: OpenFGAService {
@@ -29,12 +30,29 @@ final class _OpenFGAService: OpenFGAService {
     
     let cache = AUOWCache()
     
-    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, tuples: OpenFGATuple...) async throws {
+    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
         let createRequest = OpenFGAWriteTupleRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
-                                                     writes: .init(tuple_keys: [tuple] + tuples))
+                                                     writes: .init(tuple_keys: [tuple] + tuples),
+                                                     deletes: nil)
         try await DeferredTask {
-            try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/check",
+            try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/write",
+                                                 content: createRequest)
+        }
+        .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: createRequest)
+        .tryMap {
+            guard $0.status == .ok else { throw Error.failedToWrite }
+        }
+        .execute()
+    }
+    
+    func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
+        guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
+        let createRequest = OpenFGAWriteTupleRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
+                                                     writes: nil,
+                                                     deletes: .init(tuple_keys: [tuple] + tuples))
+        try await DeferredTask {
+            try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/write",
                                                  content: createRequest)
         }
         .shareFromCache(cache, strategy: .cacheUntilCompletionOrCancellation, keys: createRequest)

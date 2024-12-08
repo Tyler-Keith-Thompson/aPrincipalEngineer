@@ -14,7 +14,7 @@ protocol OpenFGAModel {
     var openFGAID: String { get throws }
 }
 
-extension OpenFGAModel where Self: Fluent.Model {
+extension OpenFGAModel {
     var openFGATypeName: String {
         String(describing: Self.self).reduce(into: "") { result, character in
             if character.isUppercase {
