@@ -28,6 +28,7 @@ struct BlogController: RouteCollection {
               let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
             throw Abort(.notFound)
         }
+        try await req.ensureUser(.can_view, object: post)
         return try HTMLResponse {
             PostDetail(blog: try post.toViewBlogPost())
         }

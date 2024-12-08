@@ -18,7 +18,7 @@ volumes:
   db_data:
 
 x-shared_environment: &shared_environment
-  LOG_LEVEL: ${LOG_LEVEL:-debug}
+  LOG_LEVEL: ${LOG_LEVEL:-trace}
   DATABASE_HOST: db
   DATABASE_NAME: vapor_database
   DATABASE_USERNAME: vapor_username
@@ -65,8 +65,6 @@ services:
       <<: *shared_environment
     depends_on:
       db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     command: ["migrate", "--revert", "--yes"]
     deploy:
