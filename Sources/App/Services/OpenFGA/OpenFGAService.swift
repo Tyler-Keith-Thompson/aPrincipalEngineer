@@ -10,7 +10,7 @@ import Afluent
 import DependencyInjection
 
 protocol OpenFGAService {
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool
     func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
     func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
 }
@@ -55,13 +55,13 @@ final class _OpenFGAService: OpenFGAService {
         .execute()
     }
     
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool {
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
         let allTuples = [tuple] + tuples
         let batchRequest = OpenFGABatchCheckRequest(checks: allTuples.map {
             OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
                                 tuple_key: $0,
-                                contextual_tuples: .init(tuple_keys: []))
+                                contextual_tuples: .init(tuple_keys: contextualTuples))
         })
         var hasher = Hasher()
         batchRequest.hash(into: &hasher)
@@ -87,7 +87,7 @@ final class _OpenFGAService: OpenFGAService {
 
 #if DEBUG
 final class DebugOpenFGAService: OpenFGAService {
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws -> Bool { true }
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool { true }
     
     func createRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
     
@@ -107,15 +107,7 @@ extension Container {
 
 extension Request {
     func ensureUser<Object: OpenFGAModel>(_ relation: Object.Relation, object: Object) async throws {
-        let userTypeTuple: OpenFGATuple.OpenFGATypeTuple = try {
-            if let user = auth.get(User.self) {
-                return try .init(type: user.openFGATypeName, id: user.openFGAID)
-            } else {
-                return try .init(type: "guest", id: "anonymous")
-            }
-        }()
-
-        guard try await Container.openFGAService().checkAuthorization(client: client, .init(user: userTypeTuple, relation: relation, object: object)) else {
+        guard try await Container.openFGAService().checkAuthorization(client: client, .init(user: auth.userTypeTuple, relation: relation, object: object)) else {
             throw Abort(.unauthorized)
         }
     }

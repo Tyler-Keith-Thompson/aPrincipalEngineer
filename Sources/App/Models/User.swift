@@ -44,8 +44,10 @@ extension User: Authenticatable { }
 extension User: ModelSessionAuthenticatable { }
 
 extension User {
-    func toViewUser(isLoggedIn: Bool) -> Views.User {
-        .init(isLoggedIn: isLoggedIn, email: email.mailbox)
+    func toViewUser(isLoggedIn: Bool, canCreateBlogPost: Bool) -> Views.User {
+        .init(isLoggedIn: isLoggedIn,
+              email: email.mailbox,
+              canCreateBlogPost: canCreateBlogPost)
     }
 }
 

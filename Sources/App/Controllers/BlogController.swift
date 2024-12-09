@@ -15,6 +15,8 @@ import Fluent
 import DependencyInjection
 
 struct BlogController: RouteCollection {
+    @Injected(Container.openFGAService) private var openFGAService
+    
     func boot(routes: RoutesBuilder) throws {
         let blog = routes.grouped(User.sessionAuthenticator()).grouped("blog")
         blog.get(use: self.blogSearch)
@@ -36,7 +38,13 @@ struct BlogController: RouteCollection {
     
     @Sendable
     func blogSearch(req: Request) async throws -> HTMLResponse {
-        HTMLResponse {
+        let canCreateBlogPost = try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: req.auth.userTypeTuple, relation: .can_author, object: BlogPost.new),
+            contextualTuples:
+                    .init(user: System.global, relation: .system, object: BlogPost.new)
+        )
+        return HTMLResponse {
             BlogSearchPage(
                 blogs: DeferredTask {
                     try await App.BlogPost.query(on: req.db)
@@ -49,7 +57,19 @@ struct BlogController: RouteCollection {
                     .flatMap { $0 }
                     .map { try $0.toViewBlogPost() }
                     .eraseToAnyAsyncSequence()
-            ).environment(user: req.auth.get(User.self))
+            ).environment(user: req.auth.get(User.self), canCreateBlogPost: canCreateBlogPost)
         }
     }
+}
+
+struct NewBlogPost: OpenFGAModel {
+    typealias Relation = BlogPost.Relation
+    
+    var openFGAID: String { "next" }
+    
+    var openFGATypeName: String { "blog_post" }
+}
+
+extension BlogPost {
+    static let new = NewBlogPost()
 }

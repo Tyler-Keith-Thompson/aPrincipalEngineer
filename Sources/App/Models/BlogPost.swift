@@ -69,7 +69,8 @@ extension BlogPost {
                            tags: tags.map(\.canonicalTitle),
                            title: title,
                            createdAt: createdAt,
-                           author: author?.toViewUser(isLoggedIn: false),
+                           author: author?.toViewUser(isLoggedIn: false,
+                                                      canCreateBlogPost: false),
                            description: description,
                            content: content)
     }
