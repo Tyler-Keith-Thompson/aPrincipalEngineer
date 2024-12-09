@@ -20,3 +20,8 @@
     opacity: 0 !important;
     transition: opacity 0.3s ease-out !important;
 }
+
+.profile-picture {
+  max-height: 250px;
+  object-fit: scale-down;
+}

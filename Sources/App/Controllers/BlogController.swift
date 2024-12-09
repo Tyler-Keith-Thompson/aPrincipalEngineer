@@ -29,12 +29,12 @@ struct BlogController: RouteCollection {
         
         console.group("new_post") { newPost in
             newPost.get(use: self.newPost)
-            newPost.post("web_publish", use: self.webPublish)
+            newPost.post("web_publish", body: .collect(maxSize: "100kb"), use: self.webPublish)
         }
         
         console.group("edit_post") { editPost in
             editPost.get(":blogID", use: self.editPost)
-            editPost.post("web_update", use: self.webUpdate)
+            editPost.post("web_update", body: .collect(maxSize: "100kb"), use: self.webUpdate)
         }
     }
     
@@ -117,6 +117,8 @@ struct BlogController: RouteCollection {
             let databaseTagsNames = Set<String>(databaseTags.map(\.canonicalTitle))
             let databaseTagIDs = databaseTags.compactMap { try? $0.requireID() }
             let usedBlogPostTags = try await BlogPostTag.query(on: database)
+                .with(\.$tag)
+                .with(\.$blogPost)
                 .filter(\.$tag.$id ~~ databaseTagIDs)
                 .filter(\.$blogPost.$id != request.post_id)
                 .all()
@@ -169,18 +171,12 @@ struct BlogController: RouteCollection {
     
     @Sendable
     func editPost(req: Request) async throws -> HTMLResponse {
-        let user = try req.auth.require(User.self)
         guard let blogIDString = req.parameters.get("blogID"),
               let blogID = UUID(uuidString: blogIDString),
               let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
             throw Abort(.notFound)
         }
-        guard try await openFGAService.checkAuthorization(
-            client: req.client,
-            .init(user: user, relation: .can_edit, object: post)
-        ) else {
-            throw Abort(.unauthorized)
-        }
+        try await req.ensureUser(.can_edit, object: post)
         return try HTMLResponse {
             try EditPostPage(post: post.toViewBlogPost())
                 .environment(user: req.auth.get(User.self), canEditBlogPost: true)

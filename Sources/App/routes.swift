@@ -11,15 +11,23 @@ import VaporElementary
 import Views
 
 func routes(_ app: Application) throws {
-    app.grouped(User.sessionAuthenticator()).get { req in
-        let user = try? req.auth.require(User.self)
-        if user != nil {
-            return req.redirect(to: "users/profile")
+    app.get { req in
+        let posts = try await BlogPost.query(on: req.db)
+            .limit(5)
+            .with(\.$tags)
+            .with(\.$author)
+            .sort(\.$createdAt, .descending)
+            .all()
+        
+        return HTMLResponse {
+            Index(posts: posts.compactMap { try? $0.toViewBlogPost() }).environment(user: req.auth.get(User.self))
         }
-        return try await HTMLResponse {
-            Index()
-                .environment(user: req.auth.get(User.self))
-        }.encodeResponse(for: req)
+    }
+    
+    app.get("authors") { req in
+        HTMLResponse {
+            Authors().environment(user: req.auth.get(User.self))
+        }
     }
     
     try app.register(collection: WellKnownController())

@@ -15,7 +15,7 @@ struct StyleSheets: HTML {
         // https://github.com/Yohn/PicoCSS?tab=readme-ov-file
         // https://yohn.github.io/PicoCSS/
         link(.href("/styles/.pico.min.css"), .rel(.stylesheet))
-        link(.href("/styles/modal.css"), .rel(.stylesheet))
+        link(.href("/styles/site.css"), .rel(.stylesheet))
         link(.href("/styles/prism.css"), .rel(.stylesheet))
     }
 }

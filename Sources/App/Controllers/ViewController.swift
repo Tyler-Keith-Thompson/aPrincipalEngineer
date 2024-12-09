@@ -22,10 +22,10 @@ struct ViewController: RouteCollection {
             .grouped(UserBearerAuthenticator())
             .grouped(User.guardMiddleware())
         
-        protected.post("new_post", "write", use: self.newPostWriteTab)
-        protected.post("new_post", "preview", use: self.newPostPreviewTab)
-        protected.post("edit_post", "write", use: self.editPostWriteTab)
-        protected.post("edit_post", "preview", use: self.editPostPreviewTab)
+        protected.post("new_post", "write", body: .collect(maxSize: "100kb"), use: self.newPostWriteTab)
+        protected.post("new_post", "preview", body: .collect(maxSize: "100kb"), use: self.newPostPreviewTab)
+        protected.post("edit_post", "write", body: .collect(maxSize: "100kb"), use: self.editPostWriteTab)
+        protected.post("edit_post", "preview", body: .collect(maxSize: "100kb"), use: self.editPostPreviewTab)
     }
     
     struct NewPostPreviewRequest: Content {

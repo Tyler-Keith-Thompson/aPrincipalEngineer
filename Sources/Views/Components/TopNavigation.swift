@@ -17,7 +17,7 @@ struct TopNavigation: HTML {
                 li {  a(.href("/")) { strong { "A Principal Engineer" } } }
             }
             ul {
-                li { a(.href("#")) { "Authors" } }
+                li { a(.href("/authors")) { "Authors" } }
                 li { a(.href("/blog")) { "Blog" } }
                 if user.isLoggedIn {
                     li { button(.hx.post("/users/logout"), .class("secondary")) { "Logout" } }
