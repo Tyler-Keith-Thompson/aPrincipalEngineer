@@ -26,19 +26,31 @@ struct ViewController: RouteCollection {
         protected.post("new_post", "preview", use: self.newPostPreviewTab)
     }
     
+    struct NewPostPreviewRequest: Content {
+        let post_title: String
+        let post_tags: String
+        let post_description: String
+        let post_content: String
+    }
     @Sendable func newPostPreviewTab(req: Request) async throws -> HTMLResponse {
-        let markdown = try req.content.get(String.self, at: "post_content")
+        let request = try req.content.decode(NewPostPreviewRequest.self)
         return HTMLResponse {
-            NewPostPreviewTab(postMarkdown: markdown)
+            NewPostPreviewTab(tags: request.post_tags.components(separatedBy: " "),
+                              title: request.post_title,
+                              description: request.post_description,
+                              postMarkdown: request.post_content)
                 .environment(user: req.auth.get(User.self))
                 .environment(csrfToken: req.csrf.storeToken())
         }
     }
     
     @Sendable func newPostWriteTab(req: Request) async throws -> HTMLResponse {
-        let markdown = try req.content.get(String.self, at: "post_content")
+        let request = try req.content.decode(NewPostPreviewRequest.self)
         return HTMLResponse {
-            NewPostWriteTab(postMarkdown: markdown)
+            NewPostWriteTab(tags: request.post_tags.components(separatedBy: " "),
+                            title: request.post_title,
+                            description: request.post_description,
+                            postMarkdown: request.post_content)
                 .environment(user: req.auth.get(User.self))
                 .environment(csrfToken: req.csrf.storeToken())
         }

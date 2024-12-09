@@ -35,6 +35,9 @@ struct BlogController: RouteCollection {
     }
     
     struct CreatePostRequest: Content {
+        let post_title: String
+        let post_tags: String
+        let post_description: String
         let post_content: String
     }
     @Sendable
@@ -48,20 +51,35 @@ struct BlogController: RouteCollection {
         ) else {
             throw Abort(.unauthorized)
         }
+        
         let request = try req.content.decode(CreatePostRequest.self)
+        
         try await req.db.transaction { database in
+            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) })
+            let databaseTags = Set<String>(try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all().map(\.canonicalTitle))
+            let newTags = requestTags.subtracting(databaseTags)
+            var savedTags = [Tag]()
+            for tagName in newTags {
+                let tag = Tag(canonicalTitle: tagName)
+                try await tag.save(on: database)
+                savedTags.append(tag)
+            }
+            
             let post = BlogPost(status: .published,
-                                title: "TEST",
-                                description: "TEST",
-                                content: request.post_content,
+                                title: request.post_title,
+                                description: request.post_description.replacingOccurrences(of: "\r\n", with: "\n"),
+                                content: request.post_content.replacingOccurrences(of: "\r\n", with: "\n"),
                                 author: user)
             try await post.save(on: database)
+            try await post.$tags.attach(savedTags, on: database)
+            
             try await openFGAService.createRelation(client: req.client,
                                                     .init(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
                                                     .init(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
                                                     .init(user: user, relation: .author, object: post)
             )
         }
+        
         return req.redirect(to: "/blog")
     }
     

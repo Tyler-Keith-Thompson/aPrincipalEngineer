@@ -18,7 +18,10 @@ public struct NewPostPage: HTML, Sendable {
     public var content: some HTML {
         AsyncContent {
             DefaultContent(title: "New Post") {
-                NewPostWriteTab(postMarkdown: "")
+                NewPostWriteTab(tags: [],
+                                title: "",
+                                description: "",
+                                postMarkdown: "")
             }
         }
     }

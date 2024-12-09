@@ -13,8 +13,15 @@ public struct NewPostPreviewTab: HTML, Sendable {
     @Environment(EnvironmentValue.$user) private var user
     @Environment(EnvironmentValue.$csrfToken) private var csrfToken
 
+    let tags: [String]
+    let title: String
+    let description: String
     let postMarkdown: String
-    public init(postMarkdown: String) {
+    
+    public init(tags: [String], title: String, description: String, postMarkdown: String) {
+        self.tags = tags
+        self.title = title
+        self.description = description
         self.postMarkdown = postMarkdown
     }
     
@@ -33,8 +40,17 @@ public struct NewPostPreviewTab: HTML, Sendable {
                 button(.init(name: "aria-current", value: "true")) { "Preview" }
             }
             article {
-                Markdown(markdown: postMarkdown)
+                PostDetail(blog: BlogPost(id: "",
+                                          tags: tags,
+                                          title: title,
+                                          createdAt: Date(),
+                                          author: user,
+                                          description: description,
+                                          content: postMarkdown))
             }
+            input(.type(.hidden), .name("post_title"), .value(title))
+            input(.type(.hidden), .name("post_tags"), .value(tags.joined(separator: " ")))
+            input(.type(.hidden), .name("post_description"), .value(description))
             input(.type(.hidden), .name("post_content"), .value(postMarkdown))
             input(.type(.hidden), .name("csrfToken"), .value(csrfToken))
             button(.type(.submit)) {
