@@ -177,7 +177,7 @@ struct BlogController: RouteCollection {
         }
         guard try await openFGAService.checkAuthorization(
             client: req.client,
-            .init(user: user, relation: .can_edit, object: BlogPost.new)
+            .init(user: user, relation: .can_edit, object: post)
         ) else {
             throw Abort(.unauthorized)
         }
