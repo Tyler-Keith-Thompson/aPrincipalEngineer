@@ -55,12 +55,12 @@ struct BlogController: RouteCollection {
         let request = try req.content.decode(CreatePostRequest.self)
         
         try await req.db.transaction { database in
-            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) })
-            let databaseTags = Set<String>(try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all().map(\.canonicalTitle))
-            let newTags = requestTags.subtracting(databaseTags)
+            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
+            let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
+            let databaseTagNames = Set<String>(databaseTags.map(\.canonicalTitle))
+            let newTags = requestTags.subtracting(databaseTagNames).map { Tag(canonicalTitle: $0) }
             var savedTags = [Tag]()
-            for tagName in newTags {
-                let tag = Tag(canonicalTitle: tagName)
+            for tag in newTags {
                 try await tag.save(on: database)
                 savedTags.append(tag)
             }
@@ -71,13 +71,73 @@ struct BlogController: RouteCollection {
                                 content: request.post_content.replacingOccurrences(of: "\r\n", with: "\n"),
                                 author: user)
             try await post.save(on: database)
-            try await post.$tags.attach(savedTags, on: database)
+            try await post.$tags.attach(savedTags + databaseTags, on: database)
             
             try await openFGAService.createRelation(client: req.client,
+                                                    .init(user: System.global, relation: .system, object: post),
                                                     .init(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
                                                     .init(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
                                                     .init(user: user, relation: .author, object: post)
             )
+        }
+        
+        return req.redirect(to: "/blog")
+    }
+    
+    struct UpdatePostRequest: Content {
+        let post_id: UUID
+        let post_title: String
+        let post_tags: String
+        let post_description: String
+        let post_content: String
+    }
+    @Sendable
+    func webUpdate(req: Request) async throws -> Response {
+        let user = try req.auth.require(User.self)
+        let request = try req.content.decode(UpdatePostRequest.self)
+        guard let post = try await BlogPost.find(request.post_id, on: req.db) else {
+            throw Abort(.notFound)
+        }
+        guard try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: user, relation: .can_edit, object: post)
+        ) else {
+            throw Abort(.unauthorized)
+        }
+        
+        try await req.db.transaction { database in
+            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
+            let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
+            let databaseTagsNames = Set<String>(databaseTags.map(\.canonicalTitle))
+            let databaseTagIDs = databaseTags.compactMap { try? $0.requireID() }
+            let usedBlogPostTags = try await BlogPostTag.query(on: database)
+                .filter(\.$tag.$id ~~ databaseTagIDs)
+                .filter(\.$blogPost.$id != request.post_id)
+                .all()
+            
+            let orphanedTagIDs = Set<UUID>(databaseTags.compactMap(\.id)).subtracting(Set(usedBlogPostTags.map(\.tag).compactMap(\.id)))
+            let orphanedTags = databaseTags.filter {
+                guard let id = $0.id else { return false }
+                return orphanedTagIDs.contains(id)
+            }
+            
+            let newTags = requestTags.subtracting(databaseTagsNames)
+            var savedTags = [Tag]()
+            for tagName in newTags {
+                let tag = Tag(canonicalTitle: tagName)
+                try await tag.save(on: database)
+                savedTags.append(tag)
+            }
+            
+            for tag in orphanedTags {
+                try await tag.delete(on: database)
+            }
+            
+            post.title = request.post_title
+            post.description = request.post_description.replacingOccurrences(of: "\r\n", with: "\n")
+            post.content = request.post_content.replacingOccurrences(of: "\r\n", with: "\n")
+            try await post.update(on: database)
+            try await post.$tags.attach(savedTags + databaseTags, on: database)
         }
         
         return req.redirect(to: "/blog")
