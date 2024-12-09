@@ -5,3 +5,13 @@
 /*.xcodeproj
 .publish
 Output
+Packages
+xcuserdata
+*.xcodeproj
+DerivedData/
+db.sqlite
+.swiftpm
+.env
+.env.*
+! .env.example
+.vscode

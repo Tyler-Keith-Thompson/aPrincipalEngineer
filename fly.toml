@@ -1,0 +1,30 @@
+# fly.toml app configuration file generated for aprincipalengineer on 2024-12-02T20:00:58-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'aprincipalengineer'
+primary_region = 'den'
+
+[build]
+
+[deploy]
+  release_command = 'migrate -y'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 2
+
+[[metrics]]
+  port = 8080
+  path = '/metrics'
+  https = false

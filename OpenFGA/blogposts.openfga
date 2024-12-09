@@ -1,0 +1,22 @@
+model
+  schema 1.1
+
+type user
+type guest
+
+type blog_post
+  relations
+    define system: [system]
+    define author: [user]
+    define viewer: [user, guest, user:*, guest:*]
+    define can_author: content_author from system or admin from system
+    define can_edit: author or editor from system or admin from system
+    define can_review: reviewer from system or editor from system or admin from system
+    define can_view: viewer or author or admin from system
+
+type system
+  relations
+    define admin: [user, system#admin]
+    define editor: [user, system#editor]
+    define reviewer: [user, system#reviewer]
+    define content_author: [user, system#content_author]
