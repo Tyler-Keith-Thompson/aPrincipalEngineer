@@ -21,4 +21,8 @@ extension HTML where Self: Sendable {
                                 user.toViewUser(isLoggedIn: isLoggedIn ?? true,
                                                 canCreateBlogPost: canCreateBlogPost))
     }
+    
+    func environment(csrfToken token: String) -> some HTML & Sendable {
+        self.environment(EnvironmentValue.$csrfToken, token)
+    }
 }

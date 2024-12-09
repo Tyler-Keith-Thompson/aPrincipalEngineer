@@ -15,6 +15,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.1.2"),
         .package(url: "https://github.com/vapor/queues.git", from: "1.16.1"),
         .package(url: "https://github.com/vapor-community/sendgrid.git", from: "6.0.0-rc.1"),
+        .package(url: "https://github.com/brokenhandsio/vapor-csrf.git", from: "1.0.0"),
         
         // View rendering
         .package(url: "https://github.com/sliemeobn/elementary.git", from: "0.4.1"),
@@ -63,6 +64,7 @@ let package = Package(
                 .product(name: "Redis", package: "redis"),
                 .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
                 .product(name: "SendGrid", package: "sendgrid"),
+                .product(name: "VaporCSRF", package: "vapor-csrf"),
                 
                 // View rendering
                 .product(name: "Elementary", package: "elementary"),

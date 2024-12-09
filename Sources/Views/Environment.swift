@@ -7,4 +7,5 @@
 
 public enum EnvironmentValue {
     @TaskLocal public static var user = User(isLoggedIn: false)
+    @TaskLocal public static var csrfToken = ""
 }

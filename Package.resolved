@@ -1,5 +1,5 @@
 {
-  "originHash" : "7c2c7c895bcb7a312befc557f65e36647b8163093019a3ecd5b1320d3486ed33",
+  "originHash" : "d218a94f6436305446f38dbb758fd58a1f0ef0bb8981d507914d2d703bc3c592",
   "pins" : [
     {
       "identity" : "afluent",
@@ -548,6 +548,15 @@
       "state" : {
         "revision" : "3aeeb6fab5112fb10ce699b5a80207e5cf571c32",
         "version" : "4.106.7"
+      }
+    },
+    {
+      "identity" : "vapor-csrf",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brokenhandsio/vapor-csrf.git",
+      "state" : {
+        "revision" : "c0b165a6bc1f1b39957d7b8527cbaf23b68fe8da",
+        "version" : "1.0.0"
       }
     },
     {

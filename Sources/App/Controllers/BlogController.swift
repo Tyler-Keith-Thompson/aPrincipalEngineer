@@ -8,6 +8,7 @@
 import Foundation
 import Vapor
 import VaporElementary
+import VaporCSRF
 import Views
 import AsyncAlgorithms
 import Afluent
@@ -21,6 +22,30 @@ struct BlogController: RouteCollection {
         let blog = routes.grouped(User.sessionAuthenticator()).grouped("blog")
         blog.get(use: self.blogSearch)
         blog.get(":blogID", use: self.postWithID)
+        let console = blog
+            .grouped(User.sessionAuthenticator())
+            .grouped(UserBearerAuthenticator())
+            .grouped(User.guardMiddleware())
+        
+        console.get("new_post", use: self.newPost)
+    }
+    
+    @Sendable
+    func newPost(req: Request) async throws -> HTMLResponse {
+        let user = try req.auth.require(User.self)
+        guard try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: user, relation: .can_author, object: BlogPost.new),
+            contextualTuples:
+                    .init(user: System.global, relation: .system, object: BlogPost.new)
+        ) else {
+            throw Abort(.unauthorized)
+        }
+        return HTMLResponse {
+            NewPostPage()
+                .environment(user: req.auth.get(User.self))
+                .environment(csrfToken: req.csrf.storeToken())
+        }
     }
     
     @Sendable
@@ -38,6 +63,8 @@ struct BlogController: RouteCollection {
     
     @Sendable
     func blogSearch(req: Request) async throws -> HTMLResponse {
+        // really should just check with the system if user can_author_blog_post but I didn't set it up that way
+        // will eventually need to refactor, it's just annoying
         let canCreateBlogPost = try await openFGAService.checkAuthorization(
             client: req.client,
             .init(user: req.auth.userTypeTuple, relation: .can_author, object: BlogPost.new),

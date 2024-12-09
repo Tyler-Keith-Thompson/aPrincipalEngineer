@@ -23,7 +23,11 @@ public struct BlogSearchPage: HTML, Sendable {
             DefaultContent(title: "Blog") {
                 if user.canCreateBlogPost {
                     div(.class("row-fluid")) {
-                        a(.init(name: "role", value: "button"), .class("offset-8 offset-xl-9 offset-xxl-10 col-4 col-xl-3 col-xxl-2")) { "New Post" }
+                        a(
+                            .init(name: "role", value: "button"),
+                            .class("offset-8 offset-xl-9 offset-xxl-10 col-4 col-xl-3 col-xxl-2"),
+                            .href("/blog/new_post")
+                        ) { "New Post" }
                     }
                 }
                 AsyncForEach(blogs) { blog in
