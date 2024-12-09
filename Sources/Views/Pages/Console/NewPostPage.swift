@@ -10,7 +10,6 @@ import ElementaryHTMX
 
 public struct NewPostPage: HTML, Sendable {
     @Environment(EnvironmentValue.$user) private var user
-    @Environment(EnvironmentValue.$csrfToken) private var csrfToken
     
     public init() { }
     

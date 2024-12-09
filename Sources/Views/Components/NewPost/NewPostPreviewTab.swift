@@ -26,7 +26,11 @@ public struct NewPostPreviewTab: HTML, Sendable {
     }
     
     var postData: PostData {
-        PostData(csrfToken: csrfToken, post_content: postMarkdown)
+        PostData(csrfToken: csrfToken,
+                 post_title: title,
+                 post_tags: tags.joined(separator: " "),
+                 post_description: description,
+                 post_content: postMarkdown)
     }
     
     public var content: some HTML {
@@ -64,6 +68,9 @@ public struct NewPostPreviewTab: HTML, Sendable {
 extension NewPostPreviewTab {
     struct PostData: Codable {
         let csrfToken: String
+        let post_title: String
+        let post_tags: String
+        let post_description: String
         let post_content: String
     }
 }

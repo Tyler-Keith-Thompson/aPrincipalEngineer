@@ -29,8 +29,12 @@ struct BlogController: RouteCollection {
         
         console.group("new_post") { newPost in
             newPost.get(use: self.newPost)
-            newPost.grouped(CSRFMiddleware())
-                .post("web_publish", use: self.webPublish)
+            newPost.post("web_publish", use: self.webPublish)
+        }
+        
+        console.group("edit_post") { editPost in
+            editPost.get(":blogID", use: self.editPost)
+            editPost.post("web_update", use: self.webUpdate)
         }
     }
     
@@ -42,6 +46,7 @@ struct BlogController: RouteCollection {
     }
     @Sendable
     func webPublish(req: Request) async throws -> Response {
+        try req.csrf.verifyToken()
         let user = try req.auth.require(User.self)
         guard try await openFGAService.checkAuthorization(
             client: req.client,
@@ -93,9 +98,10 @@ struct BlogController: RouteCollection {
     }
     @Sendable
     func webUpdate(req: Request) async throws -> Response {
+        try req.csrf.verifyToken()
         let user = try req.auth.require(User.self)
         let request = try req.content.decode(UpdatePostRequest.self)
-        guard let post = try await BlogPost.find(request.post_id, on: req.db) else {
+        guard let post = try await BlogPost.query(on: req.db).filter(\._$id == request.post_id).with(\.$author).with(\.$tags).first() else {
             throw Abort(.notFound)
         }
         guard try await openFGAService.checkAuthorization(
@@ -129,15 +135,15 @@ struct BlogController: RouteCollection {
                 savedTags.append(tag)
             }
             
-            for tag in orphanedTags {
-                try await tag.delete(on: database)
-            }
-            
             post.title = request.post_title
             post.description = request.post_description.replacingOccurrences(of: "\r\n", with: "\n")
             post.content = request.post_content.replacingOccurrences(of: "\r\n", with: "\n")
             try await post.update(on: database)
-            try await post.$tags.attach(savedTags + databaseTags, on: database)
+            try await post.$tags.attach((savedTags + databaseTags).filter { tag in !post.tags.map(\.id).contains(tag.id) }, on: database)
+
+            for tag in orphanedTags {
+                try await tag.delete(on: database)
+            }
         }
         
         return req.redirect(to: "/blog")
@@ -162,15 +168,41 @@ struct BlogController: RouteCollection {
     }
     
     @Sendable
+    func editPost(req: Request) async throws -> HTMLResponse {
+        let user = try req.auth.require(User.self)
+        guard let blogIDString = req.parameters.get("blogID"),
+              let blogID = UUID(uuidString: blogIDString),
+              let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
+            throw Abort(.notFound)
+        }
+        guard try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: user, relation: .can_edit, object: BlogPost.new)
+        ) else {
+            throw Abort(.unauthorized)
+        }
+        return try HTMLResponse {
+            try EditPostPage(post: post.toViewBlogPost())
+                .environment(user: req.auth.get(User.self), canEditBlogPost: true)
+                .environment(csrfToken: req.csrf.storeToken())
+        }
+    }
+    
+    @Sendable
     func postWithID(req: Request) async throws -> HTMLResponse {
         guard let blogIDString = req.parameters.get("blogID"),
               let blogID = UUID(uuidString: blogIDString),
               let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
             throw Abort(.notFound)
         }
+        let canEditBlogPost = try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: req.auth.userTypeTuple, relation: .can_edit, object: post)
+        )
         try await req.ensureUser(.can_view, object: post)
         return try HTMLResponse {
-            PostDetail(blog: try post.toViewBlogPost()).environment(user: req.auth.get(User.self))
+            PostDetail(blog: try post.toViewBlogPost())
+                .environment(user: req.auth.get(User.self), canEditBlogPost: canEditBlogPost)
         }
     }
     

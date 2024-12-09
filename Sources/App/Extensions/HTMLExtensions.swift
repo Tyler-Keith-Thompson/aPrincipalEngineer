@@ -11,7 +11,8 @@ import Views
 extension HTML where Self: Sendable {
     func environment(user: App.User?,
                      isLoggedIn: Bool? = nil,
-                     canCreateBlogPost: Bool = false) -> some HTML & Sendable {
+                     canCreateBlogPost: Bool = false,
+                     canEditBlogPost: Bool = false) -> some HTML & Sendable {
         guard let user else {
             return self.environment(EnvironmentValue.$user,
                                     .init(isLoggedIn: isLoggedIn ?? false,
@@ -19,7 +20,8 @@ extension HTML where Self: Sendable {
         }
         return self.environment(EnvironmentValue.$user,
                                 user.toViewUser(isLoggedIn: isLoggedIn ?? true,
-                                                canCreateBlogPost: canCreateBlogPost))
+                                                canCreateBlogPost: canCreateBlogPost,
+                                                canEditBlogPost: canEditBlogPost))
     }
     
     func environment(csrfToken token: String) -> some HTML & Sendable {

@@ -70,7 +70,8 @@ extension BlogPost {
                            title: title,
                            createdAt: createdAt,
                            author: author?.toViewUser(isLoggedIn: false,
-                                                      canCreateBlogPost: false),
+                                                      canCreateBlogPost: false,
+                                                      canEditBlogPost: false),
                            description: description,
                            content: content)
     }
