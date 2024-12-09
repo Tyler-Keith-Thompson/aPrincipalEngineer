@@ -27,7 +27,42 @@ struct BlogController: RouteCollection {
             .grouped(UserBearerAuthenticator())
             .grouped(User.guardMiddleware())
         
-        console.get("new_post", use: self.newPost)
+        console.group("new_post") { newPost in
+            newPost.get(use: self.newPost)
+            newPost.grouped(CSRFMiddleware())
+                .post("web_publish", use: self.webPublish)
+        }
+    }
+    
+    struct CreatePostRequest: Content {
+        let post_content: String
+    }
+    @Sendable
+    func webPublish(req: Request) async throws -> Response {
+        let user = try req.auth.require(User.self)
+        guard try await openFGAService.checkAuthorization(
+            client: req.client,
+            .init(user: user, relation: .can_author, object: BlogPost.new),
+            contextualTuples:
+                    .init(user: System.global, relation: .system, object: BlogPost.new)
+        ) else {
+            throw Abort(.unauthorized)
+        }
+        let request = try req.content.decode(CreatePostRequest.self)
+        try await req.db.transaction { database in
+            let post = BlogPost(status: .published,
+                                title: "TEST",
+                                description: "TEST",
+                                content: request.post_content,
+                                author: user)
+            try await post.save(on: database)
+            try await openFGAService.createRelation(client: req.client,
+                                                    .init(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
+                                                    .init(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
+                                                    .init(user: user, relation: .author, object: post)
+            )
+        }
+        return req.redirect(to: "/blog")
     }
     
     @Sendable

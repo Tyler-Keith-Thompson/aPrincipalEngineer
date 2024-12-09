@@ -18,7 +18,7 @@ public struct NewPostWriteTab: HTML, Sendable {
     }
     
     public var content: some HTML {
-        form(.id("new_post"), .hx.target("this"), .hx.swap(.outerHTML)) {
+        form(.action("/blog/new_post/web_publish"), .method(.post), .id("new_post"), .hx.target("this"), .hx.swap(.outerHTML)) {
             div(.init(name: "role", value: "group")) {
                 button(.init(name: "aria-current", value: "true")) { "Write" }
                 button(.hx.post("/views/new_post/preview"), .hx.vals("{\"csrfToken\": \"\(csrfToken)\"}"), .hx.include("[name='post_content']"), .class("secondary")) { "Preview" }
@@ -30,6 +30,10 @@ public struct NewPostWriteTab: HTML, Sendable {
                 .placeholder("Write up your post in markdown..."),
                 .init(name: "aria-label", value: "Post Content")
             ) { postMarkdown }
+            input(.type(.hidden), .name("csrfToken"), .value(csrfToken))
+            button(.type(.submit)) {
+                "Publish"
+            }
         }
     }
 }

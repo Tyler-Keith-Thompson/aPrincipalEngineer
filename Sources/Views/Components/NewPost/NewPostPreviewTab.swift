@@ -23,7 +23,7 @@ public struct NewPostPreviewTab: HTML, Sendable {
     }
     
     public var content: some HTML {
-        form(.id("new_post"), .hx.target("this"), .hx.swap(.outerHTML)) {
+        form(.action("/blog/new_post/web_publish"), .method(.post), .id("new_post"), .hx.target("this"), .hx.swap(.outerHTML)) {
             div(.init(name: "role", value: "group")) {
                 button(
                     .class("secondary"),
@@ -34,6 +34,11 @@ public struct NewPostPreviewTab: HTML, Sendable {
             }
             article {
                 Markdown(markdown: postMarkdown)
+            }
+            input(.type(.hidden), .name("post_content"), .value(postMarkdown))
+            input(.type(.hidden), .name("csrfToken"), .value(csrfToken))
+            button(.type(.submit)) {
+                "Publish"
             }
             script { "Prism.highlightAll();" }
         }
