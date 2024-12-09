@@ -10,9 +10,23 @@ import Afluent
 import DependencyInjection
 
 protocol OpenFGAService {
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool
-    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
-    func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws
+    func checkAuthorization(client: Vapor.Client, tuples: [OpenFGATuple], contextualTuples: [OpenFGATuple]) async throws -> Bool
+    func createRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws
+    func deleteRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws
+}
+
+extension OpenFGAService {
+    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool {
+        try await checkAuthorization(client: client, tuples: [tuple] + tuples, contextualTuples: contextualTuples)
+    }
+    
+    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
+        try await createRelation(client: client, tuples: [tuple] + tuples)
+    }
+    
+    func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
+        try await deleteRelation(client: client, tuples: [tuple] + tuples)
+    }
 }
 
 final class _OpenFGAService: OpenFGAService {
@@ -23,10 +37,10 @@ final class _OpenFGAService: OpenFGAService {
     
     let cache = AUOWCache()
     
-    func createRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
+    func createRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
         let createRequest = OpenFGAWriteTupleRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
-                                                     writes: .init(tuple_keys: [tuple] + tuples),
+                                                     writes: .init(tuple_keys: tuples),
                                                      deletes: nil)
         try await DeferredTask {
             try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/write",
@@ -39,11 +53,11 @@ final class _OpenFGAService: OpenFGAService {
         .execute()
     }
     
-    func deleteRelation(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws {
+    func deleteRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
         let createRequest = OpenFGAWriteTupleRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
                                                      writes: nil,
-                                                     deletes: .init(tuple_keys: [tuple] + tuples))
+                                                     deletes: .init(tuple_keys: tuples))
         try await DeferredTask {
             try await client.post("\(openFGAURL)/stores/01JEG4F6KBEGFH9DMQ59J7A3XD/write",
                                   content: createRequest)
@@ -55,10 +69,9 @@ final class _OpenFGAService: OpenFGAService {
         .execute()
     }
     
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool {
+    func checkAuthorization(client: Vapor.Client, tuples: [OpenFGATuple], contextualTuples: [OpenFGATuple]) async throws -> Bool {
         guard let openFGAURL = Environment.get("OpenFGA_URL") else { throw Error.noOpenFGAURL }
-        let allTuples = [tuple] + tuples
-        let batchRequest = OpenFGABatchCheckRequest(checks: allTuples.map {
+        let batchRequest = OpenFGABatchCheckRequest(checks: tuples.map {
             OpenFGACheckRequest(authorization_model_id: Environment.get("OpenFGA_AUTHORIZATION_MODEL_ID"),
                                 tuple_key: $0,
                                 contextual_tuples: .init(tuple_keys: contextualTuples))
@@ -87,11 +100,11 @@ final class _OpenFGAService: OpenFGAService {
 
 #if DEBUG
 final class DebugOpenFGAService: OpenFGAService {
-    func checkAuthorization(client: Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple..., contextualTuples: OpenFGATuple...) async throws -> Bool { true }
+    func checkAuthorization(client: Vapor.Client, tuples: [OpenFGATuple], contextualTuples: [OpenFGATuple]) async throws -> Bool { true }
     
-    func createRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
+    func createRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws { }
     
-    func deleteRelation(client: any Vapor.Client, _ tuple: OpenFGATuple, _ tuples: OpenFGATuple...) async throws { }
+    func deleteRelation(client: Vapor.Client, tuples: [OpenFGATuple]) async throws { }
 }
 #endif
 

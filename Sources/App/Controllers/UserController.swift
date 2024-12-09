@@ -359,7 +359,7 @@ struct UserController: RouteCollection, Sendable {
         try await cache.set(.emailVerificationTokenToUserKey(for: token.content), to: user.requireID(), expiresIn: .days(30))
         try await queue.dispatch(EmailJob.self, .init(personalizations: [Personalization(to: [EmailAddress(stringLiteral: user.email.mailbox)],
                                                                                          subject: "Verify Your Email")],
-                                                      from: "tyler.keith.thompson@gmail.com",
+                                                      from: "tyler@aprincipalengineer.com",
                                                       content: [EmailContent(stringLiteral: "To verify your email, follow this link: \(Container.hostConfig().hostingURL)/users/verifyEmail/\(token.content)")]))
 
     }

@@ -13,6 +13,7 @@ import JWT
 import Email
 import XCTQueues
 import Views
+import Cuckoo
 
 @testable import App
 
@@ -32,6 +33,10 @@ struct IndexTests {
             Container.sessionConfigurationFactory.register { Container.DebugSessionConfigurationFactory() }
             Container.sessionProvider.register { .memory }
             Container.cacheProvider.register { .memory }
+            MockOpenFGAService().withStub { stub in
+                when(stub.createRelation(client: any(), tuples: any())).thenDoNothing()
+                when(stub.deleteRelation(client: any(), tuples: any())).thenDoNothing()
+            }.storeIn(Container.openFGAService)
             let app = try await Application.make(.testing)
             do {
                 try await configure(app)
@@ -49,23 +54,16 @@ struct IndexTests {
     
     @Test func indexIsShownWhenUnAuthenticated() async throws {
         try await withApp { app in
+            let posts = try await BlogPost.query(on: app.db)
+                .limit(5)
+                .with(\.$tags)
+                .with(\.$author)
+                .sort(\.$createdAt, .descending)
+                .all()
+            
             try await app.test(.GET, "", afterResponse: { res async in
                 #expect(res.status == .ok)
-                #expect(res.body.string == Index().render())
-            })
-        }
-    }
-    
-    @Test func indexRedirectsToProfileWhenAuthenticated() async throws {
-        try await withApp { app in
-            let user = try User(email: Email("test@example.com"), validatedEmail: true)
-            let cookie = try await user.createSession(app: app)
-            
-            try await app.test(.GET, "", beforeRequest: { req in
-                req.headers.add(name: .cookie, value: cookie)
-            }, afterResponse: { res async in
-                #expect(res.status == .seeOther)
-                #expect(res.headers[.location].first == "users/profile")
+                #expect(res.body.string == Index(posts: posts.compactMap { try? $0.toViewBlogPost() }).render())
             })
         }
     }

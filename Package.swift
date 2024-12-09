@@ -51,6 +51,9 @@ let package = Package(
         
         // Documentation
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        
+        // Tests
+        .package(url: "https://github.com/Brightify/Cuckoo.git", from: "2.0.10"),
     ],
     targets: [
         .executableTarget(
@@ -123,6 +126,10 @@ let package = Package(
                 .target(name: "App"),
                 .product(name: "XCTVapor", package: "vapor"),
                 .product(name: "XCTQueues", package: "queues"),
+                .product(name: "Cuckoo", package: "cuckoo"),
+            ],
+            plugins: [
+                .plugin(name: "CuckooPluginSingleFile", package: "Cuckoo")
             ]
         ),
         .testTarget(

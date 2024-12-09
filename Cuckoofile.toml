@@ -1,0 +1,23 @@
+# # You can define a fallback output for all modules that don't define their own.
+# output = "Tests/Swift/Generated/GeneratedMocks.swift"
+
+[modules.App]
+output = "Tests/AppTests/Generated/GeneratedMocks+App.swift"
+# Standard imports added to the generated file(s).
+imports = ["Foundation"]
+# @testable imports if needed.
+testableImports = ["App"]
+sources = [
+    "Sources/App/Services/OpenFGA/OpenFGAService.swift",
+]
+exclude = ["ExcludedTestClass"]
+# Optionally you can use a regular expression to filter only specific classes/protocols.
+# regex = ""
+
+[modules.App.options]
+# glob = false
+# Docstrings are preserved by default, comments are omitted.
+keepDocumentation = false
+# enableInheritance = false
+# protocolsOnly = true
+# omitHeaders = true

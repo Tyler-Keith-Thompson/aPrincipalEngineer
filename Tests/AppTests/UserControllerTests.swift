@@ -17,6 +17,7 @@ import JWT
 import XCTQueues
 import Crypto
 import Views
+import Cuckoo
 
 struct UserControllerTests {
     private func withApp(_ test: (Application) async throws -> ()) async throws {
@@ -35,6 +36,10 @@ struct UserControllerTests {
             Container.fileMiddlewareFactory.register { Container.DebugFileMiddlewareFactory() }
             Container.sessionConfigurationFactory.register { Container.DebugSessionConfigurationFactory() }
             Container.cacheProvider.register { .memory }
+            MockOpenFGAService().withStub { stub in
+                when(stub.createRelation(client: any(), tuples: any())).thenDoNothing()
+                when(stub.deleteRelation(client: any(), tuples: any())).thenDoNothing()
+            }.storeIn(Container.openFGAService)
             let app = try await Application.make(.testing)
             do {
                 try await configure(app)
