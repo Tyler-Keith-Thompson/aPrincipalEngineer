@@ -27,7 +27,6 @@ struct ViewController: RouteCollection {
     }
     
     @Sendable func newPostPreviewTab(req: Request) async throws -> HTMLResponse {
-//        try req.csrf.verifyToken()
         let markdown = try req.content.get(String.self, at: "post_content")
         return HTMLResponse {
             NewPostPreviewTab(postMarkdown: markdown)
@@ -37,7 +36,6 @@ struct ViewController: RouteCollection {
     }
     
     @Sendable func newPostWriteTab(req: Request) async throws -> HTMLResponse {
-//        try req.csrf.verifyToken()
         let markdown = try req.content.get(String.self, at: "post_content")
         return HTMLResponse {
             NewPostWriteTab(postMarkdown: markdown)
