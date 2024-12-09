@@ -11,7 +11,7 @@ import VaporElementary
 import Views
 
 func routes(_ app: Application) throws {
-    app.get { req in
+    app.grouped(User.sessionAuthenticator()).get { req in
         let posts = try await BlogPost.query(on: req.db)
             .limit(5)
             .with(\.$tags)
@@ -24,7 +24,7 @@ func routes(_ app: Application) throws {
         }
     }
     
-    app.get("authors") { req in
+    app.grouped(User.sessionAuthenticator()).get("authors") { req in
         HTMLResponse {
             Authors().environment(user: req.auth.get(User.self))
         }
