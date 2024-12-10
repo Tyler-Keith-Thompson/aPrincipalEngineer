@@ -1,5 +1,5 @@
 //
-//  BlogController.swift
+//  BlogViewController.swift
 //  aPrincipalEngineer
 //
 //  Created by Tyler Thompson on 12/3/24.
@@ -15,8 +15,9 @@ import Afluent
 import Fluent
 import DependencyInjection
 
-struct BlogController: RouteCollection {
+struct BlogViewController: RouteCollection {
     @Injected(Container.openFGAService) private var openFGAService
+    let container = Container.current
     
     func boot(routes: RoutesBuilder) throws {
         let blog = routes.grouped(User.sessionAuthenticator()).grouped("blog")
@@ -186,19 +187,21 @@ struct BlogController: RouteCollection {
     
     @Sendable
     func postWithID(req: Request) async throws -> HTMLResponse {
-        guard let blogIDString = req.parameters.get("blogID"),
-              let blogID = UUID(uuidString: blogIDString),
-              let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
-            throw Abort(.notFound)
-        }
-        let canEditBlogPost = try await openFGAService.checkAuthorization(
-            client: req.client,
-            .init(user: req.auth.userTypeTuple, relation: .can_edit, object: post)
-        )
-        try await req.ensureUser(.can_view, object: post)
-        return try HTMLResponse {
-            PostDetail(blog: try post.toViewBlogPost())
-                .environment(user: req.auth.get(User.self), canEditBlogPost: canEditBlogPost)
+        try await withContainer(container) {
+            guard let blogIDString = req.parameters.get("blogID"),
+                  let blogID = UUID(uuidString: blogIDString),
+                  let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
+                throw Abort(.notFound)
+            }
+            let canEditBlogPost = try await openFGAService.checkAuthorization(
+                client: req.client,
+                .init(user: req.auth.userTypeTuple, relation: .can_edit, object: post)
+            )
+            try await req.ensureUser(.can_view, object: post)
+            return try HTMLResponse {
+                PostDetail(blog: try post.toViewBlogPost())
+                    .environment(user: req.auth.get(User.self), canEditBlogPost: canEditBlogPost)
+            }
         }
     }
     

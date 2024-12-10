@@ -47,7 +47,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.13.0"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.0"),
         .package(url: "https://github.com/Tyler-Keith-Thompson/Afluent.git", from: "0.6.13"),
-        .package(url: "https://github.com/Tyler-Keith-Thompson/DependencyInjection.git", from: "0.0.11"),
+        .package(url: "https://github.com/Tyler-Keith-Thompson/DependencyInjection.git", from: "0.0.12"),
         
         // Documentation
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),

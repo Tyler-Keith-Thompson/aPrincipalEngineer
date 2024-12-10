@@ -109,7 +109,7 @@ struct UserControllerTests {
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
                 do {
-                    let tokenResponse = try res.content.decode(UserController.TokenResponse.self)
+                    let tokenResponse = try res.content.decode(UserApiController.TokenResponse.self)
                     #expect(!tokenResponse.accessToken.isEmpty)
                     #expect(!tokenResponse.idToken.isEmpty)
                     let userID = try await tokenResponse.serializedAccessToken.userID(cache: app.cache)
@@ -300,7 +300,7 @@ struct UserControllerTests {
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
                 do {
-                    let tokenResponse = try res.content.decode(UserController.TokenResponse.self)
+                    let tokenResponse = try res.content.decode(UserApiController.TokenResponse.self)
                     #expect(!tokenResponse.accessToken.isEmpty)
                     #expect(!tokenResponse.idToken.isEmpty)
                     let userID = try await tokenResponse.serializedAccessToken.userID(cache: app.cache)
@@ -429,7 +429,7 @@ struct UserControllerTests {
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
                 do {
-                    let userResponse = try res.content.decode(UserController.UserDetailsResponse.self)
+                    let userResponse = try res.content.decode(UserApiController.UserDetailsResponse.self)
                     #expect(userResponse.id == user.id)
                     #expect(userResponse.email.mailbox == user.email.mailbox)
                     #expect(userResponse.validatedEmail == user.validatedEmail)
@@ -527,7 +527,7 @@ struct UserControllerTests {
             let clientID = UUID().uuidString
             let (accessToken, refreshToken) = try await createValidJWTs(with: app, user: user, clientID: clientID)
             try await app.cache.set("\(user.requireID())_\(clientID)_refreshToken", to: refreshToken)
-            let request = UserController.RefreshRequest(refreshToken: refreshToken)
+            let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
             try await app.test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
@@ -538,7 +538,7 @@ struct UserControllerTests {
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
                 do {
-                    let response = try res.content.decode(UserController.TokenResponse.self)
+                    let response = try res.content.decode(UserApiController.TokenResponse.self)
                     #expect(!response.accessToken.isEmpty)
                     #expect(response.refreshToken != refreshToken)
                     #expect(!response.idToken.isEmpty)
@@ -566,7 +566,7 @@ struct UserControllerTests {
             let clientID = UUID().uuidString
             let (accessToken, refreshToken) = try await createValidJWTs(with: app, user: user, clientID: clientID)
             try await app.cache.set("\(user.requireID())_\(clientID)_refreshToken", to: refreshToken)
-            let request = UserController.RefreshRequest(refreshToken: refreshToken)
+            let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
             try await app.test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
@@ -577,7 +577,7 @@ struct UserControllerTests {
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
                 do {
-                    let response = try res.content.decode(UserController.TokenResponse.self)
+                    let response = try res.content.decode(UserApiController.TokenResponse.self)
                     #expect(!response.accessToken.isEmpty)
                     #expect(response.refreshToken != refreshToken)
                     #expect(!response.idToken.isEmpty)
@@ -632,7 +632,7 @@ struct UserControllerTests {
                 #expect(res.status == .unauthorized)
             })
             
-            let request = UserController.RefreshRequest(refreshToken: refreshToken)
+            let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
             try await app.test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
@@ -659,7 +659,7 @@ struct UserControllerTests {
         #expect(decodedID == id)
     }
     
-    @discardableResult private func createUser(app: Application) async throws -> UserController.TokenResponse {
+    @discardableResult private func createUser(app: Application) async throws -> UserApiController.TokenResponse {
         var cookie: String?
         
         try await app.test(.POST, "users", beforeRequest: { req in
@@ -707,14 +707,14 @@ struct UserControllerTests {
             let clientID: String
         }
         
-        var tokenResponse: UserController.TokenResponse?
+        var tokenResponse: UserApiController.TokenResponse?
         try await app.test(.POST, "users/makeCredential", beforeRequest: { req in
             try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
             try req.headers.add(name: .cookie, value: #require(cookie))
         }, afterResponse: { res async in
             #expect(res.status == .ok)
             do {
-                let response = try res.content.decode(UserController.TokenResponse.self)
+                let response = try res.content.decode(UserApiController.TokenResponse.self)
                 tokenResponse = response
                 #expect(!response.accessToken.isEmpty)
                 #expect(!response.idToken.isEmpty)
@@ -740,7 +740,7 @@ struct UserControllerTests {
     }
 }
 
-extension UserController.TokenResponse {
+extension UserApiController.TokenResponse {
     var serializedAccessToken: AccessToken {
         get async throws {
             try await Container.userAuthenticatorKeyStore().verify(accessToken, as: AccessToken.self)

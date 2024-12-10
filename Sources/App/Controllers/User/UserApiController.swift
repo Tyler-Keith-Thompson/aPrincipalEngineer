@@ -16,7 +16,7 @@ import SendGridKit
 import Views
 import Queues
 
-struct UserController: RouteCollection, Sendable {
+struct UserApiController: RouteCollection, Sendable {
     @Injected(Container.webAuthnManager) private var webAuthnManager
     
     let container = Container.current
@@ -37,13 +37,6 @@ struct UserController: RouteCollection, Sendable {
             authenticate.get(use: self.getCredential)
             authenticate.post(use: self.login)
         }
-        sessionProtected.get("profile") { req -> HTMLResponse in
-            let user = try req.auth.require(User.self)
-            return HTMLResponse {
-                Profile()
-                    .environment(user: user)
-            }
-        }
         
         users.post("logout", use: self.logout)
 
@@ -55,7 +48,6 @@ struct UserController: RouteCollection, Sendable {
             user.get(use: self.getUserDetails)
             user.delete(use: self.delete)
         }
-        users.get("verifyEmail", ":token", use: self.verifyEmail)
         protectedUsers.post("refresh", use: self.refresh)
     }
 
@@ -304,30 +296,6 @@ struct UserController: RouteCollection, Sendable {
         let user = try req.auth.require(User.self)
         try await user.delete(on: req.db)
         return .noContent
-    }
-    
-    @Sendable
-    func verifyEmail(req: Request) async throws -> HTMLResponse {
-        guard let token = req.parameters.get("token") else {
-            throw Abort(.unprocessableEntity)
-        }
-        guard let userID = try await req.cache.get(.emailVerificationTokenToUserKey(for: token), as: UUID.self) else {
-            throw Abort(.badRequest)
-        }
-        let user = try await req.db.transaction { database in
-            guard let user = try await database.query(User.self).filter(\.$id == userID).first() else {
-                throw Abort(.notFound)
-            }
-            guard !user.validatedEmail else { return user }
-            user.validatedEmail = true
-            try await user.update(on: database)
-            return user
-        }
-        try await req.cache.delete(.emailVerificationTokenToUserKey(for: token))
-        try await req.cache.delete(.userToEmailVerificationTokenKey(for: userID.uuidString))
-        return HTMLResponse {
-            EmailVerified(username: user.email.mailbox)
-        }
     }
     
     private func createNewTokens(for user: User, clientID: String, cache: any Vapor.Cache) async throws -> (accessToken: AccessToken, refreshToken: RefreshToken, idToken: IDToken) {

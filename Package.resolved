@@ -1,5 +1,5 @@
 {
-  "originHash" : "01118bf99dbcacbadc7b3ae0ff7540e6eeff67c2340b949b9c40886b579335e0",
+  "originHash" : "677b613996d6b1764c17bb919b2d4a6151096ea8552b1106bb8ecccb3b9bc9dc",
   "pins" : [
     {
       "identity" : "aexml",
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Tyler-Keith-Thompson/DependencyInjection.git",
       "state" : {
-        "revision" : "e377d5b4f02bdb88a28dc9b3ab3d78a3a3a87e82",
-        "version" : "0.0.11"
+        "revision" : "d2862088d85e867c6f7105e9d357da2408b69faa",
+        "version" : "0.0.12"
       }
     },
     {

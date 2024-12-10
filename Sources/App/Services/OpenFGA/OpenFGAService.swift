@@ -109,7 +109,7 @@ final class DebugOpenFGAService: OpenFGAService {
 #endif
 
 extension Container {
-    static let openFGAService = Factory(scope: .shared) {
+    static let openFGAService = Factory {
 #if DEBUG
         DebugOpenFGAService() as OpenFGAService
 #else

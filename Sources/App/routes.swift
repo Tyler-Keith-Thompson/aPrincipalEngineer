@@ -32,7 +32,8 @@ func routes(_ app: Application) throws {
     
     try app.register(collection: WellKnownController())
     try app.register(collection: MetricsController())
-    try app.register(collection: UserController())
+    try app.register(collection: UserViewController())
+    try app.register(collection: UserApiController())
     try app.register(collection: ViewController())
-    try app.register(collection: BlogController())
+    try app.register(collection: BlogViewController())
 }
