@@ -8,7 +8,7 @@
 import Vapor
 
 extension Request.Authentication {
-    var userTypeTuple: OpenFGATuple.OpenFGATypeTuple {
+    var userTypeTuple: OpenFGATypeTuple {
         get throws {
             if let user = get(User.self) {
                 return try .init(type: user.openFGATypeName, id: user.openFGAID)

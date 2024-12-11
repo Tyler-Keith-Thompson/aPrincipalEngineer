@@ -44,6 +44,10 @@ struct OpenFGABatchCheckResponse: Content, Hashable {
         }
         
         let responses: [OpenFGACheckResponse]
+        
+        init(responses: [OpenFGACheckResponse]) {
+            self.responses = responses
+        }
     }
     let result: Result
 }

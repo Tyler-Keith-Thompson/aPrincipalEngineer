@@ -51,11 +51,11 @@ struct BlogViewController: RouteCollection {
         let user = try req.auth.require(User.self)
         guard try await openFGAService.checkAuthorization(
             client: req.client,
-            .init(user: user, relation: .can_author, object: BlogPost.new),
+            OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
             contextualTuples:
-                    .init(user: System.global, relation: .system, object: BlogPost.new)
+                OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
         ) else {
-            throw Abort(.unauthorized)
+            throw Abort(.forbidden)
         }
         
         let request = try req.content.decode(CreatePostRequest.self)
@@ -80,10 +80,10 @@ struct BlogViewController: RouteCollection {
             try await post.$tags.attach(savedTags + databaseTags, on: database)
             
             try await openFGAService.createRelation(client: req.client,
-                                                    .init(user: System.global, relation: .system, object: post),
-                                                    .init(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
-                                                    .init(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
-                                                    .init(user: user, relation: .author, object: post)
+                                                    OpenFGATuple(user: System.global, relation: .system, object: post),
+                                                    OpenFGATuple(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
+                                                    OpenFGATuple(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
+                                                    OpenFGATuple(user: user, relation: .author, object: post)
             )
         }
         
@@ -107,9 +107,9 @@ struct BlogViewController: RouteCollection {
         }
         guard try await openFGAService.checkAuthorization(
             client: req.client,
-            .init(user: user, relation: .can_edit, object: post)
+            OpenFGATuple(user: user, relation: .can_edit, object: post)
         ) else {
-            throw Abort(.unauthorized)
+            throw Abort(.forbidden)
         }
         
         try await req.db.transaction { database in
@@ -157,11 +157,11 @@ struct BlogViewController: RouteCollection {
         let user = try req.auth.require(User.self)
         guard try await openFGAService.checkAuthorization(
             client: req.client,
-            .init(user: user, relation: .can_author, object: BlogPost.new),
+            OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
             contextualTuples:
-                    .init(user: System.global, relation: .system, object: BlogPost.new)
+                OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
         ) else {
-            throw Abort(.unauthorized)
+            throw Abort(.forbidden)
         }
         return HTMLResponse {
             NewPostPage()
@@ -193,14 +193,16 @@ struct BlogViewController: RouteCollection {
                   let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
                 throw Abort(.notFound)
             }
-            let canEditBlogPost = try await openFGAService.checkAuthorization(
-                client: req.client,
-                .init(user: req.auth.userTypeTuple, relation: .can_edit, object: post)
-            )
-            try await req.ensureUser(.can_view, object: post)
+            
+            let userTypeTuple = try req.auth.userTypeTuple
+            let (canView, canEdit) = try await openFGAService.checkAuthorization(client: req.client,
+                                                                                 OpenFGATuple(user: userTypeTuple, relation: .can_view, object: post),
+                                                                                 OpenFGATuple(user: userTypeTuple, relation: .can_edit, object: post))
+            
+            guard canView else { throw Abort(.forbidden) }
             return try HTMLResponse {
                 PostDetail(blog: try post.toViewBlogPost())
-                    .environment(user: req.auth.get(User.self), canEditBlogPost: canEditBlogPost)
+                    .environment(user: req.auth.get(User.self), canEditBlogPost: canEdit)
             }
         }
     }
@@ -211,9 +213,9 @@ struct BlogViewController: RouteCollection {
         // will eventually need to refactor, it's just annoying
         let canCreateBlogPost = try await openFGAService.checkAuthorization(
             client: req.client,
-            .init(user: req.auth.userTypeTuple, relation: .can_author, object: BlogPost.new),
+            OpenFGATuple(user: req.auth.userTypeTuple, relation: .can_author, object: BlogPost.new),
             contextualTuples:
-                    .init(user: System.global, relation: .system, object: BlogPost.new)
+                OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
         )
         return HTMLResponse {
             BlogSearchPage(

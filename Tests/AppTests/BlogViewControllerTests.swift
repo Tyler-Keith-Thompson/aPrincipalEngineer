@@ -5,6 +5,7 @@
 //  Created by Tyler Thompson on 12/9/24.
 //
 
+#if os(macOS)
 import XCTVapor
 import Testing
 import DependencyInjection
@@ -92,3 +93,4 @@ struct BlogViewControllerTests {
         }
     }
 }
+#endif

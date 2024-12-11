@@ -1,15 +1,6 @@
 {
-  "originHash" : "677b613996d6b1764c17bb919b2d4a6151096ea8552b1106bb8ecccb3b9bc9dc",
+  "originHash" : "9068998fb220fce5fd56ca8e5cf6cb214a72a6f273a21cb25a3e2d947c7db517",
   "pins" : [
-    {
-      "identity" : "aexml",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tadija/AEXML.git",
-      "state" : {
-        "revision" : "38f7d00b23ecd891e1ee656fa6aeebd6ba04ecc3",
-        "version" : "4.6.1"
-      }
-    },
     {
       "identity" : "afluent",
       "kind" : "remoteSourceControl",
@@ -47,15 +38,6 @@
       }
     },
     {
-      "identity" : "cuckoo",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Brightify/Cuckoo.git",
-      "state" : {
-        "revision" : "305e7a1f55816f5b6410a69c9b031ee7bf602486",
-        "version" : "2.0.10"
-      }
-    },
-    {
       "identity" : "dependencyinjection",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Tyler-Keith-Thompson/DependencyInjection.git",
@@ -80,15 +62,6 @@
       "state" : {
         "revision" : "3e09519a605be410e8332627b260cebaf74bb9fa",
         "version" : "0.3.0"
-      }
-    },
-    {
-      "identity" : "filekit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nvzqz/FileKit.git",
-      "state" : {
-        "revision" : "9006d2888025fbe893c3c396327b2fe45a8c177b",
-        "version" : "6.1.0"
       }
     },
     {
@@ -173,15 +146,6 @@
       }
     },
     {
-      "identity" : "pathkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/PathKit.git",
-      "state" : {
-        "revision" : "3bfd2737b700b9a36565a8c94f4ad2b050a5e574",
-        "version" : "1.0.1"
-      }
-    },
-    {
       "identity" : "postgres-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
@@ -215,15 +179,6 @@
       "state" : {
         "revision" : "a3dac0d311cead67917ad4221feb061e3609b145",
         "version" : "1.1.2"
-      }
-    },
-    {
-      "identity" : "rainbow",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Rainbow",
-      "state" : {
-        "revision" : "e0dada9cd44e3fa7ec3b867e49a8ddbf543e3df3",
-        "version" : "4.0.1"
       }
     },
     {
@@ -272,15 +227,6 @@
       }
     },
     {
-      "identity" : "spectre",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/Spectre.git",
-      "state" : {
-        "revision" : "26cc5e9ae0947092c7139ef7ba612e34646086c7",
-        "version" : "0.10.1"
-      }
-    },
-    {
       "identity" : "sql-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sql-kit.git",
@@ -308,30 +254,12 @@
       }
     },
     {
-      "identity" : "stencil",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/Stencil.git",
-      "state" : {
-        "revision" : "4f222ac85d673f35df29962fc4c36ccfdaf9da5b",
-        "version" : "0.15.1"
-      }
-    },
-    {
       "identity" : "swift-algorithms",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms.git",
       "state" : {
         "revision" : "f6919dfc309e7f1b56224378b11e28bab5bccc42",
         "version" : "1.2.0"
-      }
-    },
-    {
-      "identity" : "swift-argument-parser",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser",
-      "state" : {
-        "revision" : "8f4d2753f0e4778c76d5f05ad16c74f707390531",
-        "version" : "1.2.3"
       }
     },
     {
@@ -377,15 +305,6 @@
       "state" : {
         "revision" : "1fbb6ef21f1525ed5faf4c95207b9c11bea27e94",
         "version" : "1.6.1"
-      }
-    },
-    {
-      "identity" : "swift-cmark",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-cmark.git",
-      "state" : {
-        "revision" : "3ccff77b2dc5b96b77db3da0d68d28068593fa53",
-        "version" : "0.5.0"
       }
     },
     {
@@ -443,15 +362,6 @@
       }
     },
     {
-      "identity" : "swift-format",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-format.git",
-      "state" : {
-        "revision" : "83248b4fa37919f78ffbd4650946759bcc54c2b5",
-        "version" : "509.0.0"
-      }
-    },
-    {
       "identity" : "swift-http-types",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
@@ -467,15 +377,6 @@
       "state" : {
         "revision" : "96a2f8a0fa41e9e09af4585e2724c4e825410b91",
         "version" : "1.6.2"
-      }
-    },
-    {
-      "identity" : "swift-markdown",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-markdown.git",
-      "state" : {
-        "revision" : "8f79cb175981458a0a27e76cb42fee8e17b1a993",
-        "version" : "0.5.0"
       }
     },
     {
@@ -598,10 +499,10 @@
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-syntax.git",
+      "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "74203046135342e4a4a627476dd6caf8b28fe11b",
-        "version" : "509.0.0"
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
       }
     },
     {
@@ -638,15 +539,6 @@
       "state" : {
         "revision" : "bfcd4bbfabe11aae4b035424ee9724582e288501",
         "version" : "2.0.0"
-      }
-    },
-    {
-      "identity" : "tomlkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LebJe/TOMLKit.git",
-      "state" : {
-        "revision" : "404c4dd011743461bff12d00a5118d0ed59d630c",
-        "version" : "0.5.5"
       }
     },
     {
@@ -701,15 +593,6 @@
       "state" : {
         "revision" : "4232d34efa49f633ba61afde365d3896fc7f8740",
         "version" : "2.15.0"
-      }
-    },
-    {
-      "identity" : "xcodeproj",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tuist/XcodeProj.git",
-      "state" : {
-        "revision" : "3797181813ee963fe305d939232bc576d23ddbb0",
-        "version" : "8.15.0"
       }
     },
     {

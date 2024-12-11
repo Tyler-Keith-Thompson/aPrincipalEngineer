@@ -5,6 +5,7 @@
 //  Created by Tyler Thompson on 12/9/24.
 //
 
+#if os(macOS)
 import Cuckoo
 import DependencyInjection
 
@@ -56,3 +57,4 @@ extension Mock where Self: Sendable, MocksType: Sendable {
         return self
     }
 }
+#endif

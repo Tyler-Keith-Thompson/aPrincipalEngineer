@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Logging
 
 struct OpenFGACheckResponse: Codable, Hashable {
     let allowed: Bool
@@ -23,6 +24,6 @@ struct OpenFGACheckResponse: Codable, Hashable {
         allowed = try container.decode(Bool.self, forKey: .allowed)
         resolution = try container.decodeIfPresent(String.self, forKey: .resolution)
         
-        id = container.codingPath.first.flatMap { UUID(uuidString: $0.stringValue) }
+        id = container.codingPath.last.flatMap { UUID(uuidString: $0.stringValue) }
     }
 }
