@@ -8,7 +8,6 @@
 import Foundation
 
 protocol _OpenFGATuple: Codable {
-    associatedtype RidiculousWayToReferenceABoolean = Bool
     var user: OpenFGATypeTuple { get }
     var relation: String { get }
     var object: OpenFGATypeTuple { get }

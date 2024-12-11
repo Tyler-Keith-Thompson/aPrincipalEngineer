@@ -16,8 +16,9 @@ protocol OpenFGAService {
 }
 
 extension _OpenFGATuple {
+    typealias RidiculousWayToReferenceABoolean = Bool
     fileprivate func unsafeStupidExcuseToUseTheType(_ arr: inout [(any _OpenFGATuple, Bool)]) -> (RidiculousWayToReferenceABoolean) {
-        return arr.popLast()!.1 as! RidiculousWayToReferenceABoolean
+        arr.popLast()!.1
     }
 }
 
