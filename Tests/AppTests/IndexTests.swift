@@ -13,7 +13,7 @@ import JWT
 import Email
 import XCTQueues
 import Views
-import Cuckoo
+import Mockable
 
 @testable import App
 
@@ -33,10 +33,12 @@ struct IndexTests {
             Container.sessionConfigurationFactory.register { Container.DebugSessionConfigurationFactory() }
             Container.sessionProvider.register { .memory }
             Container.cacheProvider.register { .memory }
-            MockOpenFGAService().withStub { stub in
-                when(stub.createRelation(client: any(), tuples: any())).thenDoNothing()
-                when(stub.deleteRelation(client: any(), tuples: any())).thenDoNothing()
-            }.storeIn(Container.openFGAService)
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                }
+            }
             let app = try await Application.make(.testing)
             do {
                 try await configure(app)

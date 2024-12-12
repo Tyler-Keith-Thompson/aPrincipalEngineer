@@ -48,13 +48,12 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.0"),
         .package(url: "https://github.com/Tyler-Keith-Thompson/Afluent.git", from: "0.6.13"),
         .package(url: "https://github.com/Tyler-Keith-Thompson/DependencyInjection.git", from: "0.0.12"),
-        .package(url: "https://github.com/apple/swift-atomics.git", from: "1.2.0"),
         
         // Documentation
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
         
         // Tests
-//        .package(url: "https://github.com/Brightify/Cuckoo.git", from: "2.0.10"),
+        .package(url: "https://github.com/Tyler-Keith-Thompson/Mockable.git", branch: "main"),
     ],
     targets: [
         .executableTarget(
@@ -100,12 +99,15 @@ let package = Package(
                 // Code
                 .product(name: "Afluent", package: "Afluent"),
                 .product(name: "DependencyInjection", package: "DependencyInjection"),
-                .product(name: "Atomics", package: "swift-atomics"),
+                .product(name: "Mockable", package: "Mockable"),
                 "Email",
                 "Views",
             ],
             resources: [
                 .copy("Public/"),
+            ],
+            swiftSettings: [
+                .define("MOCKING", .when(configuration: .debug))
             ]
         ),
         .target(
@@ -128,10 +130,6 @@ let package = Package(
                 .target(name: "App"),
                 .product(name: "XCTVapor", package: "vapor"),
                 .product(name: "XCTQueues", package: "queues"),
-//                .product(name: "Cuckoo", package: "cuckoo"),
-            ],
-            plugins: [
-//                .plugin(name: "CuckooPluginSingleFile", package: "Cuckoo")
             ]
         ),
         .testTarget(

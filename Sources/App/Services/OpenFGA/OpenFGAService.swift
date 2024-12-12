@@ -8,7 +8,9 @@
 import Vapor
 import Afluent
 import DependencyInjection
+import Mockable
 
+@Mockable
 protocol OpenFGAService {
     func checkAuthorization(client: Vapor.Client, tuples: [any _OpenFGATuple], contextualTuples: [any _OpenFGATuple]) async throws -> OpenFGABatchCheckResponse
     func createRelation(client: Vapor.Client, tuples: [any _OpenFGATuple]) async throws

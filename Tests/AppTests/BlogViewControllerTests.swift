@@ -5,7 +5,6 @@
 //  Created by Tyler Thompson on 12/9/24.
 //
 
-#if os(macOS)
 import XCTVapor
 import Testing
 import DependencyInjection
@@ -14,7 +13,8 @@ import JWT
 import Email
 import XCTQueues
 import Views
-import Cuckoo
+import Mockable
+//import Cuckoo
 
 @testable import App
 
@@ -34,10 +34,12 @@ struct BlogViewControllerTests {
             Container.sessionConfigurationFactory.register { Container.DebugSessionConfigurationFactory() }
             Container.sessionProvider.register { .memory }
             Container.cacheProvider.register { .memory }
-            MockOpenFGAService().withStub { stub in
-                when(stub.createRelation(client: any(), tuples: any())).thenDoNothing()
-                when(stub.deleteRelation(client: any(), tuples: any())).thenDoNothing()
-            }.storeIn(Container.openFGAService)
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                }
+            }
             let app = try await Application.make(.testing)
             do {
                 try await configure(app)
@@ -72,11 +74,17 @@ struct BlogViewControllerTests {
 //    }
     @Test func getSpecificBlogPost() async throws {
         try await withApp { app in
-            MockOpenFGAService().withStub { stub in
-                when(stub.createRelation(client: any(), tuples: any())).thenDoNothing()
-                when(stub.deleteRelation(client: any(), tuples: any())).thenDoNothing()
-                when(stub.checkAuthorization(client: any(), tuples: any(), contextualTuples: any())).thenReturn(true)
-            }.storeIn(Container.openFGAService)
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
             
             let postQueryResult = try await BlogPost.query(on: app.db)
                 .with(\.$tags)
@@ -93,4 +101,3 @@ struct BlogViewControllerTests {
         }
     }
 }
-#endif
