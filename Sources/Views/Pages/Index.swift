@@ -54,11 +54,7 @@ public struct Index: HTML, Sendable {
                 }
             }
             hr()
-            div(.class("grid")) {
-                span() { }
-                h4 { "My latest posts and rants." }
-                span() { }
-            }
+            h4(.style("text-align: center;")) { "My latest posts and rants." }
             ForEach(posts) { post in
                 BlogHeader(blog: post)
                 p { post.description }
