@@ -126,7 +126,11 @@ final class _OpenFGAService: OpenFGAService {
 
 #if DEBUG
 final class DebugOpenFGAService: OpenFGAService {
-    func checkAuthorization(client: Vapor.Client, tuples: [any _OpenFGATuple], contextualTuples: [any _OpenFGATuple]) async throws -> OpenFGABatchCheckResponse { .init(result: .init(responses: [])) }
+    func checkAuthorization(client: Vapor.Client, tuples: [any _OpenFGATuple], contextualTuples: [any _OpenFGATuple]) async throws -> OpenFGABatchCheckResponse {
+        .init(result: .init(responses: tuples.map { tuple in
+            OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+        }))
+    }
     
     func createRelation(client: Vapor.Client, tuples: [any _OpenFGATuple]) async throws { }
     

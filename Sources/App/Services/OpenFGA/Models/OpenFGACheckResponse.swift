@@ -26,4 +26,10 @@ struct OpenFGACheckResponse: Codable, Hashable {
         
         id = container.codingPath.last.flatMap { UUID(uuidString: $0.stringValue) }
     }
+    
+    init(allowed: Bool, resolution: String? = nil, id: UUID? = nil) {
+        self.allowed = allowed
+        self.resolution = resolution
+        self.id = id
+    }
 }
