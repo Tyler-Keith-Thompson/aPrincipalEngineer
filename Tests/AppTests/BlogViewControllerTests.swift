@@ -18,6 +18,14 @@ import Mockable
 @testable import App
 
 struct BlogViewControllerTests {
+    init() {
+        Matcher.register((any _OpenFGATuple).self, match: {
+            $0.user == $1.user
+            && $0.relation == $1.relation
+            && $0.object == $1.object
+        })
+    }
+    
     private func withApp(_ test: (Application) async throws -> ()) async throws {
         try await withTestContainer {
             Container.databaseConfig.register {
@@ -397,8 +405,9 @@ struct BlogViewControllerTests {
             let csrfToken: String
         }
         try await withApp { app in
+            let mockOpenFGAService = MockOpenFGAService()
             Container.openFGAService.register {
-                MockOpenFGAService().withStub {
+                mockOpenFGAService.withStub {
                     $0.createRelation(client: .any, tuples: .any).willReturn()
                         .deleteRelation(client: .any, tuples: .any).willReturn()
                         .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
@@ -409,8 +418,11 @@ struct BlogViewControllerTests {
                 }
             }
             
-            let user = User(email: try Email("test@example.com"), validatedEmail: true)
-            let sessionCookie = try await user.createSession(app: app)
+            let newUser = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await newUser.createSession(app: app)
+            
+            let queriedUser = try await User.query(on: app.db).all().first { $0.email.mailbox == "test@example.com" }
+            let user = try #require(queriedUser)
             
             let request = CreatePostRequest(post_title: UUID().uuidString,
                                             post_tags: "\(UUID().uuidString) \(UUID().uuidString)",
@@ -444,6 +456,13 @@ struct BlogViewControllerTests {
                     #expect(post.author?.email.mailbox == user.email.mailbox)
                     #expect(post.tags.count == request.post_tags.components(separatedBy: " ").count)
                     #expect(post.tags.map(\.canonicalTitle).sorted() == request.post_tags.components(separatedBy: " ").map { $0.lowercased() }.sorted())
+                    verify(mockOpenFGAService)
+                        .createRelation(client: .any, tuples: .value([
+                            try OpenFGATuple(user: App.System.global, relation: .system, object: post),
+                            try OpenFGATuple(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
+                            try OpenFGATuple(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
+                            try OpenFGATuple(user: user, relation: .author, object: post),
+                        ])).called(1)
                 } catch {
                     Issue.record(error)
                 }
