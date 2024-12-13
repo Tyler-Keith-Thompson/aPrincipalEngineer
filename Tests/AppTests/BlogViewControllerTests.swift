@@ -154,7 +154,6 @@ struct BlogViewControllerTests {
                 .first()
             
             let post = try #require(postQueryResult)
-            let viewBlogPost = try post.toViewBlogPost()
 
             try await app.test(.GET, "blog/\(try post.requireID())", afterResponse: { res async in
                 #expect(res.status == .forbidden)
@@ -251,6 +250,139 @@ struct BlogViewControllerTests {
             let sessionCookie = try await user.createSession(app: app)
             
             try await app.test(.GET, "blog/new_post", beforeRequest: { req in
+               req.headers.add(name: .cookie, value: sessionCookie)
+            }, afterResponse: { res async in
+                #expect(res.status == .forbidden)
+            })
+        }
+    }
+    
+    @Test func editBlogPost() async throws {
+        try await withApp { app in
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+
+            let postQueryResult = try await BlogPost.query(on: app.db)
+                .with(\.$tags)
+                .with(\.$author)
+                .first()
+            
+            let post = try #require(postQueryResult)
+            let viewBlogPost = try post.toViewBlogPost()
+
+            let user = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await user.createSession(app: app)
+            
+            try await app.test(.GET, "blog/edit_post/\(post.requireID())", beforeRequest: { req in
+               req.headers.add(name: .cookie, value: sessionCookie)
+            }, afterResponse: { res async in
+                do {
+                    let csrfToken = try #require(app.sessions.memory.storage.sessions.first?.value["__VaporCSRFSessionKey"])
+                    
+                    #expect(res.status == .ok)
+                    let expectedBody = try await EditPostPage(post: viewBlogPost)
+                        .environment(user: user, canEditBlogPost: true)
+                        .environment(csrfToken: csrfToken)
+                        .renderAsync()
+
+                    #expect(
+                        res.body.string
+                        ==
+                        expectedBody
+                    )
+                } catch {
+                    Issue.record(error)
+                }
+            })
+        }
+    }
+    
+    @Test func editBlogPost_ReturnsNotFoundIfPostIDIsWrong() async throws {
+        try await withApp { app in
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+
+            let user = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await user.createSession(app: app)
+            
+            try await app.test(.GET, "blog/edit_post/\(UUID())", beforeRequest: { req in
+               req.headers.add(name: .cookie, value: sessionCookie)
+            }, afterResponse: { res async in
+                #expect(res.status == .notFound)
+            })
+        }
+    }
+    
+    @Test func editBlogPost_ReturnsUnauthorizedWithNoUser() async throws {
+        try await withApp { app in
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+
+            let postQueryResult = try await BlogPost.query(on: app.db)
+                .with(\.$tags)
+                .with(\.$author)
+                .first()
+            
+            let post = try #require(postQueryResult)
+
+            try await app.test(.GET, "blog/edit_post/\(post.requireID())", afterResponse: { res async in
+                #expect(res.status == .unauthorized)
+            })
+        }
+    }
+
+    @Test func editBlogPost_ReturnsForbiddenWithoutAuthorization() async throws {
+        try await withApp { app in
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: false, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+
+            let postQueryResult = try await BlogPost.query(on: app.db)
+                .with(\.$tags)
+                .with(\.$author)
+                .first()
+            
+            let post = try #require(postQueryResult)
+
+            let user = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await user.createSession(app: app)
+            
+            try await app.test(.GET, "blog/edit_post/\(post.requireID())", beforeRequest: { req in
                req.headers.add(name: .cookie, value: sessionCookie)
             }, afterResponse: { res async in
                 #expect(res.status == .forbidden)

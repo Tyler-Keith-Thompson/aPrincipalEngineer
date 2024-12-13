@@ -175,6 +175,7 @@ struct BlogViewController: RouteCollection {
     @Sendable
     func editPost(req: Request) async throws -> HTMLResponse {
         try await withContainer(container) {
+            try req.auth.require(User.self)
             guard let blogIDString = req.parameters.get("blogID"),
                   let blogID = UUID(uuidString: blogIDString),
                   let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
