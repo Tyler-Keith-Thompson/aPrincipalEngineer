@@ -16,7 +16,8 @@ extension HTML where Self: Sendable {
         guard let user else {
             return self.environment(EnvironmentValue.$user,
                                     .init(isLoggedIn: isLoggedIn ?? false,
-                                          canCreateBlogPost: canCreateBlogPost))
+                                          canCreateBlogPost: canCreateBlogPost,
+                                          canEditBlogPost: canEditBlogPost))
         }
         return self.environment(EnvironmentValue.$user,
                                 user.toViewUser(isLoggedIn: isLoggedIn ?? true,

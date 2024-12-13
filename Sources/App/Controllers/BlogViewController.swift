@@ -154,34 +154,38 @@ struct BlogViewController: RouteCollection {
     
     @Sendable
     func newPost(req: Request) async throws -> HTMLResponse {
-        let user = try req.auth.require(User.self)
-        guard try await openFGAService.checkAuthorization(
-            client: req.client,
-            OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
-            contextualTuples:
-                OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
-        ) else {
-            throw Abort(.forbidden)
-        }
-        return HTMLResponse {
-            NewPostPage()
-                .environment(user: req.auth.get(User.self))
-                .environment(csrfToken: req.csrf.storeToken())
+        try await withContainer(container) {
+            let user = try req.auth.require(User.self)
+            guard try await openFGAService.checkAuthorization(
+                client: req.client,
+                OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
+                contextualTuples:
+                    OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
+            ) else {
+                throw Abort(.forbidden)
+            }
+            return HTMLResponse {
+                NewPostPage()
+                    .environment(user: req.auth.get(User.self))
+                    .environment(csrfToken: req.csrf.storeToken())
+            }
         }
     }
     
     @Sendable
     func editPost(req: Request) async throws -> HTMLResponse {
-        guard let blogIDString = req.parameters.get("blogID"),
-              let blogID = UUID(uuidString: blogIDString),
-              let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
-            throw Abort(.notFound)
-        }
-        try await req.ensureUser(.can_edit, object: post)
-        return try HTMLResponse {
-            try EditPostPage(post: post.toViewBlogPost())
-                .environment(user: req.auth.get(User.self), canEditBlogPost: true)
-                .environment(csrfToken: req.csrf.storeToken())
+        try await withContainer(container) {
+            guard let blogIDString = req.parameters.get("blogID"),
+                  let blogID = UUID(uuidString: blogIDString),
+                  let post = try await BlogPost.query(on: req.db).filter(\._$id == blogID).with(\.$author).with(\.$tags).first() else {
+                throw Abort(.notFound)
+            }
+            try await req.ensureUser(.can_edit, object: post)
+            return try HTMLResponse {
+                try EditPostPage(post: post.toViewBlogPost())
+                    .environment(user: req.auth.get(User.self), canEditBlogPost: true)
+                    .environment(csrfToken: req.csrf.storeToken())
+            }
         }
     }
     
