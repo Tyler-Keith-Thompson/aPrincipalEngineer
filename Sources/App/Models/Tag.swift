@@ -24,7 +24,7 @@ final class Tag: Model, Content, @unchecked Sendable {
     
     init(id: UUID? = nil, canonicalTitle: String, alternatives: [String] = []) {
         self.id = id
-        self.canonicalTitle = canonicalTitle
+        self.canonicalTitle = canonicalTitle.lowercased()
         self.alternatives = alternatives
     }
 }

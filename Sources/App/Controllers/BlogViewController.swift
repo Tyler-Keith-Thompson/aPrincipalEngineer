@@ -73,7 +73,7 @@ struct BlogViewController: RouteCollection {
                 }
                 
                 let post = BlogPost(status: .published,
-                                    title: request.post_title,
+                                    title: request.post_title.replacingOccurrences(of: "\r\n", with: "\n"),
                                     description: request.post_description.replacingOccurrences(of: "\r\n", with: "\n"),
                                     content: request.post_content.replacingOccurrences(of: "\r\n", with: "\n"),
                                     author: user)
