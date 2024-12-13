@@ -47,47 +47,52 @@ struct BlogViewController: RouteCollection {
     }
     @Sendable
     func webPublish(req: Request) async throws -> Response {
-        try req.csrf.verifyToken()
-        let user = try req.auth.require(User.self)
-        guard try await openFGAService.checkAuthorization(
-            client: req.client,
-            OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
-            contextualTuples:
-                OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
-        ) else {
-            throw Abort(.forbidden)
-        }
-        
-        let request = try req.content.decode(CreatePostRequest.self)
-        
-        try await req.db.transaction { database in
-            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
-            let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
-            let databaseTagNames = Set<String>(databaseTags.map(\.canonicalTitle))
-            let newTags = requestTags.subtracting(databaseTagNames).map { Tag(canonicalTitle: $0) }
-            var savedTags = [Tag]()
-            for tag in newTags {
-                try await tag.save(on: database)
-                savedTags.append(tag)
+        try await withContainer(container) {
+            try req.csrf.verifyToken()
+            let user = try req.auth.require(User.self)
+            guard try await openFGAService.checkAuthorization(
+                client: req.client,
+                OpenFGATuple(user: user, relation: .can_author, object: BlogPost.new),
+                contextualTuples:
+                    OpenFGATuple(user: System.global, relation: .system, object: BlogPost.new)
+            ) else {
+                throw Abort(.forbidden)
             }
             
-            let post = BlogPost(status: .published,
-                                title: request.post_title,
-                                description: request.post_description.replacingOccurrences(of: "\r\n", with: "\n"),
-                                content: request.post_content.replacingOccurrences(of: "\r\n", with: "\n"),
-                                author: user)
-            try await post.save(on: database)
-            try await post.$tags.attach(savedTags + databaseTags, on: database)
+            let request = try req.content.decode(CreatePostRequest.self)
             
-            try await openFGAService.createRelation(client: req.client,
-                                                    OpenFGATuple(user: System.global, relation: .system, object: post),
-                                                    OpenFGATuple(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
-                                                    OpenFGATuple(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
-                                                    OpenFGATuple(user: user, relation: .author, object: post)
-            )
+            try await req.db.transaction { database in
+                let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
+                let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
+                let databaseTagNames = Set<String>(databaseTags.map(\.canonicalTitle))
+                let newTags = requestTags.subtracting(databaseTagNames).map { Tag(canonicalTitle: $0) }
+                var savedTags = [Tag]()
+                for tag in newTags {
+                    try await tag.save(on: database)
+                    savedTags.append(tag)
+                }
+                
+                let post = BlogPost(status: .published,
+                                    title: request.post_title,
+                                    description: request.post_description.replacingOccurrences(of: "\r\n", with: "\n"),
+                                    content: request.post_content.replacingOccurrences(of: "\r\n", with: "\n"),
+                                    author: user)
+                try await post.save(on: database)
+                try await post.$tags.attach(savedTags + databaseTags, on: database)
+                
+                try await withContainer(container) {
+                    try await openFGAService.createRelation(client: req.client,
+                                                            OpenFGATuple(user: System.global, relation: .system, object: post),
+                                                            OpenFGATuple(user: .init(type: "user", id: "*"), relation: .viewer, object: post),
+                                                            OpenFGATuple(user: .init(type: "guest", id: "*"), relation: .viewer, object: post),
+                                                            OpenFGATuple(user: user, relation: .author, object: post)
+                                                            
+                    )
+                }
+            }
+            
+            return req.redirect(to: "/blog")
         }
-        
-        return req.redirect(to: "/blog")
     }
     
     struct UpdatePostRequest: Content {
@@ -99,57 +104,59 @@ struct BlogViewController: RouteCollection {
     }
     @Sendable
     func webUpdate(req: Request) async throws -> Response {
-        try req.csrf.verifyToken()
-        let user = try req.auth.require(User.self)
-        let request = try req.content.decode(UpdatePostRequest.self)
-        guard let post = try await BlogPost.query(on: req.db).filter(\._$id == request.post_id).with(\.$author).with(\.$tags).first() else {
-            throw Abort(.notFound)
-        }
-        guard try await openFGAService.checkAuthorization(
-            client: req.client,
-            OpenFGATuple(user: user, relation: .can_edit, object: post)
-        ) else {
-            throw Abort(.forbidden)
-        }
-        
-        try await req.db.transaction { database in
-            let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
-            let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
-            let databaseTagsNames = Set<String>(databaseTags.map(\.canonicalTitle))
-            let databaseTagIDs = databaseTags.compactMap { try? $0.requireID() }
-            let usedBlogPostTags = try await BlogPostTag.query(on: database)
-                .with(\.$tag)
-                .with(\.$blogPost)
-                .filter(\.$tag.$id ~~ databaseTagIDs)
-                .filter(\.$blogPost.$id != request.post_id)
-                .all()
-            
-            let orphanedTagIDs = Set<UUID>(databaseTags.compactMap(\.id)).subtracting(Set(usedBlogPostTags.map(\.tag).compactMap(\.id)))
-            let orphanedTags = databaseTags.filter {
-                guard let id = $0.id else { return false }
-                return orphanedTagIDs.contains(id)
+        try await withContainer(container) {
+            try req.csrf.verifyToken()
+            let user = try req.auth.require(User.self)
+            let request = try req.content.decode(UpdatePostRequest.self)
+            guard let post = try await BlogPost.query(on: req.db).filter(\._$id == request.post_id).with(\.$author).with(\.$tags).first() else {
+                throw Abort(.notFound)
+            }
+            guard try await openFGAService.checkAuthorization(
+                client: req.client,
+                OpenFGATuple(user: user, relation: .can_edit, object: post)
+            ) else {
+                throw Abort(.forbidden)
             }
             
-            let newTags = requestTags.subtracting(databaseTagsNames)
-            var savedTags = [Tag]()
-            for tagName in newTags {
-                let tag = Tag(canonicalTitle: tagName)
-                try await tag.save(on: database)
-                savedTags.append(tag)
+            try await req.db.transaction { database in
+                let requestTags = Set<String>(request.post_tags.components(separatedBy: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.map { $0.lowercased() })
+                let databaseTags = try await Tag.query(on: database).filter(\.$canonicalTitle ~~ requestTags).all()
+                let databaseTagsNames = Set<String>(databaseTags.map(\.canonicalTitle))
+                let databaseTagIDs = databaseTags.compactMap { try? $0.requireID() }
+                let usedBlogPostTags = try await BlogPostTag.query(on: database)
+                    .with(\.$tag)
+                    .with(\.$blogPost)
+                    .filter(\.$tag.$id ~~ databaseTagIDs)
+                    .filter(\.$blogPost.$id != request.post_id)
+                    .all()
+                
+                let orphanedTagIDs = Set<UUID>(databaseTags.compactMap(\.id)).subtracting(Set(usedBlogPostTags.map(\.tag).compactMap(\.id)))
+                let orphanedTags = databaseTags.filter {
+                    guard let id = $0.id else { return false }
+                    return orphanedTagIDs.contains(id)
+                }
+                
+                let newTags = requestTags.subtracting(databaseTagsNames)
+                var savedTags = [Tag]()
+                for tagName in newTags {
+                    let tag = Tag(canonicalTitle: tagName)
+                    try await tag.save(on: database)
+                    savedTags.append(tag)
+                }
+                
+                post.title = request.post_title
+                post.description = request.post_description.replacingOccurrences(of: "\r\n", with: "\n")
+                post.content = request.post_content.replacingOccurrences(of: "\r\n", with: "\n")
+                try await post.update(on: database)
+                try await post.$tags.attach((savedTags + databaseTags).filter { tag in !post.tags.map(\.id).contains(tag.id) }, on: database)
+                
+                for tag in orphanedTags {
+                    try await tag.delete(on: database)
+                }
             }
             
-            post.title = request.post_title
-            post.description = request.post_description.replacingOccurrences(of: "\r\n", with: "\n")
-            post.content = request.post_content.replacingOccurrences(of: "\r\n", with: "\n")
-            try await post.update(on: database)
-            try await post.$tags.attach((savedTags + databaseTags).filter { tag in !post.tags.map(\.id).contains(tag.id) }, on: database)
-
-            for tag in orphanedTags {
-                try await tag.delete(on: database)
-            }
+            return req.redirect(to: "/blog")
         }
-        
-        return req.redirect(to: "/blog")
     }
     
     @Sendable

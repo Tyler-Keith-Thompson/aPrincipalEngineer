@@ -224,8 +224,6 @@ struct BlogViewControllerTests {
                 }
             }
 
-            let user = User(email: try Email("test@example.com"), validatedEmail: true)
-            
             try await app.test(.GET, "blog/new_post", afterResponse: { res async in
                 #expect(res.status == .unauthorized)
             })
@@ -386,6 +384,69 @@ struct BlogViewControllerTests {
                req.headers.add(name: .cookie, value: sessionCookie)
             }, afterResponse: { res async in
                 #expect(res.status == .forbidden)
+            })
+        }
+    }
+    
+    @Test func publishNewPost() async throws {
+        struct CreatePostRequest: Content {
+            let post_title: String
+            let post_tags: String
+            let post_description: String
+            let post_content: String
+            let csrfToken: String
+        }
+        try await withApp { app in
+            Container.openFGAService.register {
+                MockOpenFGAService().withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+            
+            let user = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await user.createSession(app: app)
+            
+            let request = CreatePostRequest(post_title: UUID().uuidString,
+                                            post_tags: "\(UUID().uuidString) \(UUID().uuidString)",
+                                            post_description: UUID().uuidString,
+                                            post_content: UUID().uuidString,
+                                            csrfToken: [UInt8].random(count: 32).base64)
+            
+            
+            app.sessions.memory.storage.sessions.keys.forEach {
+                app.sessions.memory.storage.sessions[$0]?["__VaporCSRFSessionKey"] = request.csrfToken
+            }
+            
+            try await app.test(.POST, "blog/new_post/web_publish", beforeRequest: { req in
+                req.headers.add(name: .cookie, value: sessionCookie)
+                try req.content.encode(request)
+            }, afterResponse: { res async in
+                do {
+                    #expect(res.status == .seeOther)
+                    let postQueryResult = try await BlogPost.query(on: app.db)
+                        .with(\.$tags)
+                        .with(\.$author)
+                        .filter(\.$title == request.post_title)
+                        .first()
+                    
+                    let post = try #require(postQueryResult)
+                    
+                    #expect(post.status == .published)
+                    #expect(post.title == request.post_title)
+                    #expect(post.description == request.post_description)
+                    #expect(post.content == request.post_content)
+                    #expect(post.author?.email.mailbox == user.email.mailbox)
+                    #expect(post.tags.count == request.post_tags.components(separatedBy: " ").count)
+                    #expect(post.tags.map(\.canonicalTitle).sorted() == request.post_tags.components(separatedBy: " ").map { $0.lowercased() }.sorted())
+                } catch {
+                    Issue.record(error)
+                }
             })
         }
     }
