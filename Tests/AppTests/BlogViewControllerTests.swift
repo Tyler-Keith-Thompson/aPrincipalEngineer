@@ -62,22 +62,6 @@ struct BlogViewControllerTests {
         }
     }
     
-//    let blog = routes.grouped(User.sessionAuthenticator()).grouped("blog")
-//    blog.get(use: self.blogSearch)
-//    let console = blog
-//        .grouped(User.sessionAuthenticator())
-//        .grouped(UserBearerAuthenticator())
-//        .grouped(User.guardMiddleware())
-//    
-//    console.group("new_post") { newPost in
-//        newPost.get(use: self.newPost)
-//        newPost.post("web_publish", body: .collect(maxSize: "100kb"), use: self.webPublish)
-//    }
-//    
-//    console.group("edit_post") { editPost in
-//        editPost.get(":blogID", use: self.editPost)
-//        editPost.post("web_update", body: .collect(maxSize: "100kb"), use: self.webUpdate)
-//    }
     @Test func getSpecificBlogPost() async throws {
         try await withApp { app in
             Container.openFGAService.register {
@@ -396,7 +380,7 @@ struct BlogViewControllerTests {
         }
     }
     
-    @Test func publishNewPost() async throws {
+    @Test func publishNewPost_WithNewTags() async throws {
         struct CreatePostRequest: Content {
             let post_title: String
             let post_tags: String
@@ -423,6 +407,7 @@ struct BlogViewControllerTests {
             
             let queriedUser = try await User.query(on: app.db).all().first { $0.email.mailbox == "test@example.com" }
             let user = try #require(queriedUser)
+            let tagCount = try await Tag.query(on: app.db).all().count
             
             let request = CreatePostRequest(post_title: UUID().uuidString,
                                             post_tags: "\(UUID().uuidString) \(UUID().uuidString)",
@@ -456,6 +441,8 @@ struct BlogViewControllerTests {
                     #expect(post.author?.email.mailbox == user.email.mailbox)
                     #expect(post.tags.count == request.post_tags.components(separatedBy: " ").count)
                     #expect(post.tags.map(\.canonicalTitle).sorted() == request.post_tags.components(separatedBy: " ").map { $0.lowercased() }.sorted())
+                    let newTagCount = try await Tag.query(on: app.db).all().count
+                    #expect(tagCount + 2 == newTagCount)
                     verify(mockOpenFGAService)
                         .createRelation(client: .any, tuples: .value([
                             try OpenFGATuple(user: App.System.global, relation: .system, object: post),
@@ -500,7 +487,7 @@ struct BlogViewControllerTests {
             let allTags = try await Tag.query(on: app.db).all()
             
             let request = CreatePostRequest(post_title: UUID().uuidString,
-                                            post_tags: allTags.map(\.canonicalTitle).joined(separator: " "),
+                                            post_tags: allTags.map { $0.canonicalTitle.uppercased() }.joined(separator: " "),
                                             post_description: UUID().uuidString,
                                             post_content: UUID().uuidString,
                                             csrfToken: [UInt8].random(count: 32).base64)
@@ -544,6 +531,96 @@ struct BlogViewControllerTests {
                 } catch {
                     Issue.record(error)
                 }
+            })
+        }
+    }
+    
+    @Test func publishNewPost_WithInvalidCSRF() async throws {
+        struct CreatePostRequest: Content {
+            let post_title: String
+            let post_tags: String
+            let post_description: String
+            let post_content: String
+            let csrfToken: String
+        }
+        try await withApp { app in
+            let mockOpenFGAService = MockOpenFGAService()
+            Container.openFGAService.register {
+                mockOpenFGAService.withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: true, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+            
+            let newUser = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await newUser.createSession(app: app)
+            
+            let queriedUser = try await User.query(on: app.db).all().first { $0.email.mailbox == "test@example.com" }
+            let user = try #require(queriedUser)
+            
+            let request = CreatePostRequest(post_title: UUID().uuidString,
+                                            post_tags: "\(UUID().uuidString) \(UUID().uuidString)",
+                                            post_description: UUID().uuidString,
+                                            post_content: UUID().uuidString,
+                                            csrfToken: [UInt8].random(count: 32).base64)
+            
+            try await app.test(.POST, "blog/new_post/web_publish", beforeRequest: { req in
+                req.headers.add(name: .cookie, value: sessionCookie)
+                try req.content.encode(request)
+            }, afterResponse: { res async in
+                #expect(res.status == .badRequest)
+            })
+        }
+    }
+    
+    @Test func publishNewPost_WithInvalidAuthorization() async throws {
+        struct CreatePostRequest: Content {
+            let post_title: String
+            let post_tags: String
+            let post_description: String
+            let post_content: String
+            let csrfToken: String
+        }
+        try await withApp { app in
+            let mockOpenFGAService = MockOpenFGAService()
+            Container.openFGAService.register {
+                mockOpenFGAService.withStub {
+                    $0.createRelation(client: .any, tuples: .any).willReturn()
+                        .deleteRelation(client: .any, tuples: .any).willReturn()
+                        .checkAuthorization(client: .any, tuples: .any, contextualTuples: .any).willProduce { _, tuples, _ in
+                                .init(result: .init(responses: tuples.map { tuple in
+                                    OpenFGACheckResponse(allowed: false, id: tuple.correlationID)
+                                }))
+                        }
+                }
+            }
+            
+            let newUser = User(email: try Email("test@example.com"), validatedEmail: true)
+            let sessionCookie = try await newUser.createSession(app: app)
+            
+            let queriedUser = try await User.query(on: app.db).all().first { $0.email.mailbox == "test@example.com" }
+            let user = try #require(queriedUser)
+            
+            let request = CreatePostRequest(post_title: UUID().uuidString,
+                                            post_tags: "\(UUID().uuidString) \(UUID().uuidString)",
+                                            post_description: UUID().uuidString,
+                                            post_content: UUID().uuidString,
+                                            csrfToken: [UInt8].random(count: 32).base64)
+            
+            app.sessions.memory.storage.sessions.keys.forEach {
+                app.sessions.memory.storage.sessions[$0]?["__VaporCSRFSessionKey"] = request.csrfToken
+            }
+            
+            try await app.test(.POST, "blog/new_post/web_publish", beforeRequest: { req in
+                req.headers.add(name: .cookie, value: sessionCookie)
+                try req.content.encode(request)
+            }, afterResponse: { res async in
+                #expect(res.status == .forbidden)
             })
         }
     }
