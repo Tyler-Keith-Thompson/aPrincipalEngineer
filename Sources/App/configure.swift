@@ -23,6 +23,8 @@ extension Application.Queues.Provider: @unchecked @retroactive Sendable { }
 
 // configures your application
 public func configure(_ app: Application) async throws {
+    app.traceAutoPropagation = true
+    
     (try? Container.redisConfiguration()).flatMap { app.redis.configuration = $0 }
     try app.sessions.use(Container.sessionProvider())
     app.sessions.configuration = Container.sessionConfigurationFactory().config(for: app)
@@ -73,11 +75,12 @@ public func configure(_ app: Application) async throws {
         .with(strictTransportSecurity: strictTransportSecurityConfig)
         .with(referrerPolicy: referrerPolicyConfig)
     app.middleware = Middlewares()
+    app.middleware.use(TracingMiddleware())
     app.middleware.use(securityHeadersFactory.build())
     app.middleware.use(ErrorMiddleware.default(environment: app.environment))
     app.middleware.use(Container.fileMiddlewareFactory().middleware(for: app))
     app.middleware.use(app.sessions.middleware)
-
+    
     if let JWK_KEY_1 = Environment.get("JWK_PRIVATE_1") {
         try await Container.userAuthenticatorKeyStore().add(ecdsa: ECDSA.PrivateKey<P256>(pem: JWK_KEY_1))
     } else {

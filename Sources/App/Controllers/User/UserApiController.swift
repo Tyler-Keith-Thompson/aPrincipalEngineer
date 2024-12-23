@@ -132,27 +132,29 @@ struct UserApiController: RouteCollection, Sendable {
     }
     @Sendable
     func refresh(req: Request) async throws -> TokenResponse {
-        guard let bearer = req.headers.bearerAuthorization else {
-            throw Abort(.unauthorized)
+        try await withContainer(container) {
+            guard let bearer = req.headers.bearerAuthorization else {
+                throw Abort(.unauthorized)
+            }
+            let store = Container.userAuthenticatorKeyStore()
+            let verifiedPayload: AccessToken = try await store.verify(bearer.token, as: AccessToken.self)
+            let user = try req.auth.require(User.self)
+            guard let clientID = verifiedPayload.aud.value.first,
+                  let validRefreshToken = try await req.cache.get(.refreshTokenKey(for: user.requireID().uuidString, clientID: clientID), as: RefreshToken.self) else {
+                throw Abort(.unauthorized)
+            }
+            
+            let request = try req.content.decode(RefreshRequest.self)
+            
+            guard request.refreshToken == validRefreshToken else {
+                throw Abort(.unauthorized)
+            }
+            
+            let (accessToken, refreshToken, idToken) = try await createNewTokens(for: user, clientID: clientID, cache: req.cache)
+            return try await .init(accessToken: accessToken.sign(),
+                                   refreshToken: refreshToken,
+                                   idToken: idToken.sign())
         }
-        let store = Container.userAuthenticatorKeyStore()
-        let verifiedPayload: AccessToken = try await store.verify(bearer.token, as: AccessToken.self)
-        let user = try req.auth.require(User.self)
-        guard let clientID = verifiedPayload.aud.value.first,
-                let validRefreshToken = try await req.cache.get(.refreshTokenKey(for: user.requireID().uuidString, clientID: clientID), as: RefreshToken.self) else {
-            throw Abort(.unauthorized)
-        }
-        
-        let request = try req.content.decode(RefreshRequest.self)
-        
-        guard request.refreshToken == validRefreshToken else {
-            throw Abort(.unauthorized)
-        }
-        
-        let (accessToken, refreshToken, idToken) = try await createNewTokens(for: user, clientID: clientID, cache: req.cache)
-        return try await .init(accessToken: accessToken.sign(),
-                               refreshToken: refreshToken,
-                               idToken: idToken.sign())
     }
     
     struct UserDetailsResponse: Content {
