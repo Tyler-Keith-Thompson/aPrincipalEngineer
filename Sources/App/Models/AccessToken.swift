@@ -32,7 +32,7 @@ struct AccessToken: JWTPayload, Equatable {
     }
 }
 
-struct PseudonymousIdentifierOptions: Codable {
+struct PseudonymousIdentifierOptions: Codable, @unchecked Sendable {
     let symmetricKey: SymmetricKey
     let nonce: AES.GCM.Nonce
     enum CodingKeys: String, CodingKey {

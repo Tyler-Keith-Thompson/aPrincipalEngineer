@@ -8,7 +8,7 @@ let package = Package(
     ],
     dependencies: [
         // Server
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.110.0"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.2.0"),
         .package(url: "https://github.com/vapor/redis.git", from: "4.11.0"),
@@ -128,7 +128,8 @@ let package = Package(
             name: "AppTests",
             dependencies: [
                 .target(name: "App"),
-                .product(name: "XCTVapor", package: "vapor"),
+                .product(name: "VaporTesting", package: "vapor"),
+//                .product(name: "XCTVapor", package: "vapor"),
                 .product(name: "XCTQueues", package: "queues"),
             ]
         ),

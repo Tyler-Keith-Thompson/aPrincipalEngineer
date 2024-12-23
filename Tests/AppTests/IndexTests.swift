@@ -5,7 +5,7 @@
 //  Created by Tyler Thompson on 12/2/24.
 //
 
-import XCTVapor
+import VaporTesting
 import Testing
 import DependencyInjection
 import FluentSQLiteDriver
@@ -63,7 +63,7 @@ struct IndexTests {
                 .sort(\.$createdAt, .descending)
                 .all()
             
-            try await app.test(.GET, "", afterResponse: { res async in
+            try await app.testing().test(.GET, "", afterResponse: { res async in
                 #expect(res.status == .ok)
                 #expect(res.body.string == Index(posts: posts.compactMap { try? $0.toViewBlogPost() }).render())
             })
@@ -77,11 +77,11 @@ extension App.User {
         let user = self
         app.grouped(User.sessionAuthenticator()).post("test") { req in
             let user = try req.content.decode(User.self)
-            try await user.save(on: req.db)
+            try? await user.save(on: req.db)
             req.auth.login(user)
             return HTTPStatus.ok
         }
-        try await app.test(.POST, "test", beforeRequest: { req in
+        try await app.testing().test(.POST, "test", beforeRequest: { req in
             try req.content.encode(user)
         }, afterResponse: { res async in
             cookie = res.headers[.setCookie].first

@@ -6,12 +6,12 @@
 //
 
 @testable import App
-import XCTVapor
+import VaporTesting
 import Testing
 import Fluent
 import DependencyInjection
 import FluentSQLiteDriver
-@testable import WebAuthn
+@testable @preconcurrency import WebAuthn
 import Email
 import JWT
 import XCTQueues
@@ -71,7 +71,7 @@ struct UserControllerTests {
                 cookie = res.headers[.setCookie].first
             })
             
-            try await app.test(.GET, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/makeCredential", beforeRequest: { req in
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
@@ -105,7 +105,7 @@ struct UserControllerTests {
                 let credential: ClientResponse
                 let clientID: String
             }
-            try await app.test(.POST, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/makeCredential", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
@@ -142,7 +142,7 @@ struct UserControllerTests {
             let tokenText = try #require(emailVerificationToken?.content)
             #expect((job.content ?? []).contains(where: { $0.value.contains("\(Container.hostConfig().hostingURL)/users/verifyEmail/\(tokenText)") }))
             app.queues.asyncTest.jobs.removeAll()
-            try await app.test(.GET, "users/verifyEmail/\(tokenText)", afterResponse: { res async in
+            try await app.testing().test(.GET, "users/verifyEmail/\(tokenText)", afterResponse: { res async in
                 #expect(res.status == .ok)
                 #expect(res.body.string == EmailVerified(username: "test@example.com").render())
             })
@@ -153,7 +153,7 @@ struct UserControllerTests {
         try await withApp { app in
             try await User(email: Email("test@example.com"), validatedEmail: true).save(on: app.db)
             
-            try await app.test(.POST, "users", beforeRequest: { req in
+            try await app.testing().test(.POST, "users", beforeRequest: { req in
                 try req.content.encode([
                     "email": "test@example.com"
                 ])
@@ -167,7 +167,7 @@ struct UserControllerTests {
         try await withApp { app in
             var cookie: String?
 
-            try await app.test(.POST, "users", beforeRequest: { req in
+            try await app.testing().test(.POST, "users", beforeRequest: { req in
                 try req.content.encode([
                     "email": "test@example.com"
                 ])
@@ -178,14 +178,14 @@ struct UserControllerTests {
             
             #expect(try await User.query(on: app.db).filter(\.$email == Email("test@example.com")).first() != nil)
             
-            try await app.test(.DELETE, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.DELETE, "users/makeCredential", beforeRequest: { req in
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 #expect(res.status == .noContent)
             })
             #expect(try await User.query(on: app.db).filter(\.$email == Email("test@example.com")).first() == nil)
 
-            try await app.test(.GET, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/makeCredential", beforeRequest: { req in
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 #expect(res.status == .unauthorized)
@@ -197,7 +197,7 @@ struct UserControllerTests {
         try await withApp { app in
             var cookie: String?
             
-            try await app.test(.POST, "users", beforeRequest: { req in
+            try await app.testing().test(.POST, "users", beforeRequest: { req in
                 try req.content.encode([
                     "email": "test@example.com"
                 ])
@@ -205,7 +205,7 @@ struct UserControllerTests {
                 cookie = res.headers[.setCookie].first
             })
             
-            try await app.test(.GET, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/makeCredential", beforeRequest: { req in
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 struct Options: Decodable {
@@ -238,14 +238,14 @@ struct UserControllerTests {
                 let credential: ClientResponse
                 let clientID: String
             }
-            try await app.test(.POST, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/makeCredential", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
             })
             
-            try await app.test(.POST, "users/makeCredential", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/makeCredential", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
@@ -259,7 +259,7 @@ struct UserControllerTests {
             var cookie: String?
             try await createUser(app: app)
             
-            try await app.test(.GET, "users/authenticate", afterResponse: { res async in
+            try await app.testing().test(.GET, "users/authenticate", afterResponse: { res async in
                 #expect(res.status == .ok)
                 cookie = res.headers[.setCookie].first
 
@@ -296,7 +296,7 @@ struct UserControllerTests {
                 let credential: ClientResponse
                 let clientID: String
             }
-            try await app.test(.POST, "users/authenticate", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/authenticate", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
@@ -327,7 +327,7 @@ struct UserControllerTests {
         try await withApp { app in
             var cookie: String?
             
-            try await app.test(.GET, "users/authenticate", afterResponse: { res async in
+            try await app.testing().test(.GET, "users/authenticate", afterResponse: { res async in
                 #expect(res.status == .ok)
                 cookie = res.headers[.setCookie].first
             })
@@ -353,7 +353,7 @@ struct UserControllerTests {
                 let credential: ClientResponse
                 let clientID: String
             }
-            try await app.test(.POST, "users/authenticate", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/authenticate", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
@@ -368,7 +368,7 @@ struct UserControllerTests {
             try await createUser(app: app)
             app.sessions.memory.storage.sessions.removeAll()
             
-            try await app.test(.GET, "users/authenticate", afterResponse: { res async in
+            try await app.testing().test(.GET, "users/authenticate", afterResponse: { res async in
                 #expect(res.status == .ok)
                 cookie = res.headers[.setCookie].first
 
@@ -405,14 +405,14 @@ struct UserControllerTests {
                 let credential: ClientResponse
                 let clientID: String
             }
-            try await app.test(.POST, "users/authenticate", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/authenticate", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
             })
             
-            try await app.test(.POST, "users/authenticate", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/authenticate", beforeRequest: { req in
                 try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
                 try req.headers.add(name: .cookie, value: #require(cookie))
             }, afterResponse: { res async in
@@ -426,7 +426,7 @@ struct UserControllerTests {
             let tokenResponse = try await createUser(app: app)
             let userQuery = try await User.find(tokenResponse.serializedAccessToken.userID(cache: app.cache), on: app.db)
             let user = try #require(userQuery)
-            try await app.test(.GET, "users/\(user.requireID())", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/\(user.requireID())", beforeRequest: { req in
                 req.headers.add(name: .authorization, value: "Bearer \(tokenResponse.accessToken)")
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
@@ -447,7 +447,7 @@ struct UserControllerTests {
             try await createUser(app: app)
             let allUsers = try await User.query(on: app.db).all()
             let user = try #require(allUsers.first)
-            try await app.test(.GET, "users/\(user.id!)", afterResponse: { res async in
+            try await app.testing().test(.GET, "users/\(user.id!)", afterResponse: { res async in
                 #expect(res.status == .unauthorized)
             })
         }
@@ -460,7 +460,7 @@ struct UserControllerTests {
             let accessToken = try await createUser(app: app).accessToken
             let allUsers = try await User.query(on: app.db).all()
             _ = try #require(allUsers.first { $0.id != existingUser.id })
-            try await app.test(.GET, "users/\(existingUser.id!)", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/\(existingUser.id!)", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { res async in
                 #expect(res.status == .unauthorized)
@@ -475,7 +475,7 @@ struct UserControllerTests {
             let user = try #require(allUsers.first)
             let id = user.id!
             try await user.delete(on: app.db)
-            try await app.test(.GET, "users/\(id)", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/\(id)", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { res async in
                 #expect(res.status == .unauthorized || res.status == .notFound)
@@ -489,7 +489,7 @@ struct UserControllerTests {
             let allUsers = try await User.query(on: app.db).all()
             let user = try #require(allUsers.first)
             let id = user.id!
-            try await app.test(.DELETE, "users/\(id)", beforeRequest: { req in
+            try await app.testing().test(.DELETE, "users/\(id)", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { res async in
                 #expect(res.status == .noContent)
@@ -503,7 +503,7 @@ struct UserControllerTests {
             let allUsers = try await User.query(on: app.db).all()
             let user = try #require(allUsers.first)
             let id = user.id!
-            try await app.test(.DELETE, "users/\(id)", afterResponse: { res async in
+            try await app.testing().test(.DELETE, "users/\(id)", afterResponse: { res async in
                 #expect(res.status == .unauthorized)
             })
         }
@@ -513,7 +513,7 @@ struct UserControllerTests {
         try await withApp { app in
             let user = try User(email: Email("test@example.com"), validatedEmail: true)
             let cookie = try await user.createSession(app: app)
-            try await app.test(.GET, "users/profile", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/profile", beforeRequest: { req in
                 req.headers.add(name: .cookie, value: cookie)
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
@@ -530,7 +530,7 @@ struct UserControllerTests {
             let (accessToken, refreshToken) = try await createValidJWTs(with: app, user: user, clientID: clientID)
             try await app.cache.set("\(user.requireID())_\(clientID)_refreshToken", to: refreshToken)
             let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
-            try await app.test(.POST, "users/refresh", beforeRequest: { req async in
+            try await app.testing().test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
                     try await req.headers.add(name: .authorization, value: "Bearer \(accessToken.sign())")
@@ -569,7 +569,7 @@ struct UserControllerTests {
             let (accessToken, refreshToken) = try await createValidJWTs(with: app, user: user, clientID: clientID)
             try await app.cache.set("\(user.requireID())_\(clientID)_refreshToken", to: refreshToken)
             let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
-            try await app.test(.POST, "users/refresh", beforeRequest: { req async in
+            try await app.testing().test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
                     try await req.headers.add(name: .authorization, value: "Bearer \(accessToken.sign())")
@@ -618,24 +618,24 @@ struct UserControllerTests {
             let refreshToken = tokenResponse.refreshToken
             let userQuery = try await User.find(tokenResponse.serializedAccessToken.userID(cache: app.cache), on: app.db)
             let user = try #require(userQuery)
-            try await app.test(.GET, "users/\(user.requireID())", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/\(user.requireID())", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { res async in
                 #expect(res.status == .ok)
             })
             
-            try await app.test(.POST, "users/logout", beforeRequest: { req in
+            try await app.testing().test(.POST, "users/logout", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { _ async in })
             
-            try await app.test(.GET, "users/\(user.requireID())", beforeRequest: { req in
+            try await app.testing().test(.GET, "users/\(user.requireID())", beforeRequest: { req in
                 try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
             }, afterResponse: { res async in
                 #expect(res.status == .unauthorized)
             })
             
             let request = UserApiController.RefreshRequest(refreshToken: refreshToken)
-            try await app.test(.POST, "users/refresh", beforeRequest: { req async in
+            try await app.testing().test(.POST, "users/refresh", beforeRequest: { req async in
                 do {
                     try req.content.encode(request)
                     try req.headers.add(name: .authorization, value: "Bearer \(#require(accessToken))")
@@ -664,7 +664,7 @@ struct UserControllerTests {
     @discardableResult private func createUser(app: Application) async throws -> UserApiController.TokenResponse {
         var cookie: String?
         
-        try await app.test(.POST, "users", beforeRequest: { req in
+        try await app.testing().test(.POST, "users", beforeRequest: { req in
             try req.content.encode([
                 "email": "test@example.com"
             ])
@@ -674,7 +674,7 @@ struct UserControllerTests {
             cookie = res.headers[.setCookie].first
         })
         
-        try await app.test(.GET, "users/makeCredential", beforeRequest: { req in
+        try await app.testing().test(.GET, "users/makeCredential", beforeRequest: { req in
             try req.headers.add(name: .cookie, value: #require(cookie))
         }, afterResponse: { res async in
             #expect(res.status == .ok)
@@ -710,7 +710,7 @@ struct UserControllerTests {
         }
         
         var tokenResponse: UserApiController.TokenResponse?
-        try await app.test(.POST, "users/makeCredential", beforeRequest: { req in
+        try await app.testing().test(.POST, "users/makeCredential", beforeRequest: { req in
             try req.content.encode(Request(credential: ClientResponse(), clientID: "aPrincipalEngineerClient"))
             try req.headers.add(name: .cookie, value: #require(cookie))
         }, afterResponse: { res async in
