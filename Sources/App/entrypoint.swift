@@ -26,7 +26,7 @@ enum Entrypoint {
             return { (label: String) in
                 return MultiplexLogHandler([
                     ConsoleLogger(label: label, console: console, level: level, metadataProvider: .otel),
-                ])
+                ], metadataProvider: .otel)
             }
         }
         
@@ -84,9 +84,9 @@ enum Entrypoint {
         let executorTakeoverSuccess = NIOSingletons.unsafeTryInstallSingletonPosixEventLoopGroupAsConcurrencyGlobalExecutor()
         app.logger.debug("Tried to install SwiftNIO's EventLoopGroup as Swift's global concurrency executor", metadata: ["success": .stringConvertible(executorTakeoverSuccess)])
         
-        let group = ServiceGroup(services: [metrics], logger: app.logger)
+        let group = ServiceGroup(services: [tracer, metrics], logger: app.logger)
         do {
-            // Otel isn't reporting anywhere, don't actually run it until configured
+            // Otel isn't reporting anywhere, don't actually run it until configured in production
 //            Task { try await group.run() }
             try await configure(app)
         } catch {
