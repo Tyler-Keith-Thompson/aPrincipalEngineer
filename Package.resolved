@@ -1,5 +1,5 @@
 {
-  "originHash" : "6dc9f3b9b209fe10e8952e2774c7f630f6613075234975dd0016efff5bb76a89",
+  "originHash" : "238a586bf3dae05c29b3036b1f69d620d741915233cd20fafa090e3c0b447c53",
   "pins" : [
     {
       "identity" : "afluent",
@@ -139,10 +139,10 @@
     {
       "identity" : "mockable",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Tyler-Keith-Thompson/Mockable.git",
+      "location" : "https://github.com/Kolos65/Mockable.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "3f0ceadca3cd5f66ad132820a772495ee8e0d37c"
+        "revision" : "68f3ed6c4b62afab27a84425494cb61421a61ac1",
+        "version" : "0.3.1"
       }
     },
     {
